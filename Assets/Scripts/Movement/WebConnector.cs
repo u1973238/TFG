@@ -85,8 +85,8 @@ public class WebConnector : MonoBehaviour
         // El gruix del pont físic (en X, Y) i la seva longitud total (en Z)
         boxCollider.size = new Vector3(bridgeWidth, 0.05f, distance);
 
-        // Assignem el pont a la capa "Walkable" perquè el nostre script de terra el detecti
-        bridge.layer = LayerMask.NameToLayer("Walkable");
+        // Assignem el pont a la capa "Climbing" perquè el nostre script de terra el detecti
+        bridge.layer = LayerMask.NameToLayer("Climbing");
 
         Debug.Log($"Pont de teranyina de {distance:F2} metres de longitud creat amb èxit!");
     }

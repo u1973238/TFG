@@ -38,6 +38,11 @@ public class PressurePlate : MonoBehaviour
         }
     }
 
+    public bool IsPlateActivated()
+    {
+        return weightsOnTopCount > 0;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         // NOU: Si entra la pedra O si entra el jugador (l'aranya), sumem pes

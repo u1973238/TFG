@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class MissionNPC : MonoBehaviour
@@ -8,11 +9,14 @@ public class MissionNPC : MonoBehaviour
 
     [Header("Interfície Flotant (NOU)")]
     [SerializeField] private GameObject visualPrompt; // El cartell de "Press E"
+    [SerializeField] private TextMeshProUGUI liveDialog;
 
     [Header("Diàlegs de text (Depuració)")]
+    public string interactionPrompt = "Prem E per interactuar";
     public string dialegInicial = "Hola aranya! Pots ajudar-me a recollir aquests objectes?";
     public string dialegEnProgres = "Encara estàs treballant en el meu encàrrec?";
     public string dialegCompletat = "Uau, moltes gràcies per salvar-me!";
+
 
     private bool playerInRange = false;
 
@@ -38,16 +42,19 @@ public class MissionNPC : MonoBehaviour
 
         if (!missionToGive.isActive && !missionToGive.isCompleted)
         {
-            Debug.Log($"[NPC {name}]: {dialegInicial}");
+            //Debug.Log($"[NPC {name}]: {dialegInicial}");
             MissionManager.Instance.ActivateMission(missionToGive.missionID);
+            liveDialog.text = dialegInicial; // Actualitzem el text del diàleg en pantalla
         }
         else if (missionToGive.isActive && !missionToGive.isCompleted)
         {
-            Debug.Log($"[NPC {name}]: {dialegEnProgres}");
+            //Debug.Log($"[NPC {name}]: {dialegEnProgres}");
+            liveDialog.text = dialegEnProgres; // Actualitzem el text del diàleg en pantalla
         }
         else if (missionToGive.isCompleted)
         {
-            Debug.Log($"[NPC {name}]: {dialegCompletat}");
+            //Debug.Log($"[NPC {name}]: {dialegCompletat}");
+            liveDialog.text = dialegCompletat; // Actualitzem el text del diàleg en pantalla
         }
     }
 
@@ -75,6 +82,7 @@ public class MissionNPC : MonoBehaviour
             if (visualPrompt != null)
             {
                 visualPrompt.SetActive(false);
+                liveDialog.text = interactionPrompt; // Tornem al text de prompt quan l'aranya s'allunya
             }
         }
     }

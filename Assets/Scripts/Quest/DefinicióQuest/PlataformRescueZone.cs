@@ -15,8 +15,8 @@ public class PlatformRescueZone : MonoBehaviour
         // Si el pont ja s'ha creat, no cal fer res més
         if (isBridgeConnected) return;
 
-        // DETECCIÓ: Si el que creua el buit és un pont de teranyina (capa Walkable)
-        if (other.gameObject.layer == LayerMask.NameToLayer("Walkable"))
+        // DETECCIÓ: Si el que creua el buit és un pont de teranyina (capa Climbing)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Climbing"))
         {
             isBridgeConnected = true;
             Debug.Log($"[RESCAT] S'ha creat un pont de teranyina vàlid a la zona: {name}!");

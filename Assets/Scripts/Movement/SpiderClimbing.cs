@@ -23,10 +23,38 @@ public class SpiderClimbing : MonoBehaviour
 
     private Quaternion groundInitialLocalRotation;
 
-    void Start()
+    [Header("CONFIGURACIÓ DEL SALT DE PARET")]
+    [SerializeField] private InputReader inputReader; // La teva referència d'inputs
+    [SerializeField] private float forcaSaltAmunt = 8f;   // Força cap al cel
+    [SerializeField] private float forcaSaltEnrere = 10f; // Força per separar-se de la paret
+    [SerializeField] private float cooldownTornarAEscalar = 0.25f; // Temps de seguretat a l'aire
+
+    private float tempsCooldownEscalada = 0f;
+
+
+    private void Awake()
     {
         rb = GetComponent<Rigidbody>();
         locomotion = GetComponent<SpiderLocomotion>();
+    }
+    void Start()
+    {
+        isClimbing = false;
+        wallNormal = Vector3.up;
+
+        if (locomotion != null)
+        {
+            locomotion.enabled = true; // Assegurem que el locomotion comenci activat
+        }
+        if (characterMesh != null) {
+            groundInitialLocalRotation = characterMesh.localRotation;
+        }
+
+        if (inputReader != null)
+        {
+            inputReader.jumpEvent += ExecutarSaltDeParet; // Substitueix 'jumpEvent' pel nom exacte que tinguis al teu InputReader
+        }
+
 
         // Si no has posat la càmera a l'inspector, la busquem automàticament
         if (cam == null && Camera.main != null)
@@ -173,6 +201,28 @@ public class SpiderClimbing : MonoBehaviour
         // Movem l'objecte de forma neta en la direcció calculada
         rb.MovePosition(rb.position + climbDirection * climbSpeed * Time.fixedDeltaTime);
     }
+    private void ExecutarSaltDeParet()
+    {
+        // Només podem fer el salt de paret si estem escalant actualment
+        if (!isClimbing) return;
+
+        // Sortim de l'estat d'escalada immediatament
+        isClimbing = false;
+        if (locomotion != null) locomotion.enabled = true;
+
+        rb.useGravity = true;
+
+        // Calculem la direcció de l'impuls:
+        // Utilitzem la 'wallNormal' (que mira cap enfora de la paret) i la sumem amb una mica de força cap amunt
+        Vector3 direccioSalt = (wallNormal * forcaSaltEnrere) + (Vector3.up * forcaSaltAmunt);
+
+        // Apliquem la força física al Rigidbody de l'aranya
+        rb.linearVelocity = Vector3.zero; // Netejem la velocitat actual perquè el salt sigui perfecte i controlat
+        rb.AddForce(direccioSalt, ForceMode.Impulse);
+
+        // Activem el temporitzador de seguretat perquè no es reenganxi immediatament
+        tempsCooldownEscalada = cooldownTornarAEscalar;
+    }
 
     private void ResetMeshRotation()
     {
@@ -181,5 +231,16 @@ public class SpiderClimbing : MonoBehaviour
             characterMesh.localRotation = Quaternion.Slerp(characterMesh.localRotation, groundInitialLocalRotation, Time.fixedDeltaTime * rotationSpeed);
         }
     }
+
+    void OnDestroy()
+    {
+        // Ens desubscrivim per evitar errors de memòria
+        if (inputReader != null)
+        {
+            inputReader.jumpEvent -= ExecutarSaltDeParet;
+        }
+    }
+
+
 }
 

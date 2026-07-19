@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c3ecc72c2d35d4041a3b49ff35680418, type: 3}
-  m_Name: Mission_Xarxa
+  m_Name: Obra_porta_Palanca
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
-  missionID: conectar_plataformas
-  title: La xarxa de salvament
-  description: 
-  requiredAmount: 3
+  missionID: Palanca
+  title: Obra la porta i recull la poma
+  description: El jugadro ha d'activar la palanca i recollir lobjecte
+  requiredAmount: 1

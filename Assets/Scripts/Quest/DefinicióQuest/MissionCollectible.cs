@@ -3,7 +3,7 @@ using UnityEngine;
 public class MissionCollectible : MonoBehaviour
 {
     [Header("Configuració de la Missió")]
-    [SerializeField] private string targetMissionID = "salvar_animals";
+    [SerializeField] private string targetMissionID = "CollectItems";
     [SerializeField] private int value = 1;
 
     [Header("Efecte Visual")]

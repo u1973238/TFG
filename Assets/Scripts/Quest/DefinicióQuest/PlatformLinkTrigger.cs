@@ -15,8 +15,8 @@ public class PlatformLinkTrigger : MonoBehaviour
         // Si este puente ya fue conectado, ignoramos cualquier otra telaraña
         if (isConnected) return;
 
-        // DETECCIÓN: Si lo que cruza es un puente de telaraña (capa Walkable)
-        if (other.gameObject.layer == LayerMask.NameToLayer("Walkable"))
+        // DETECCIÓN: Si lo que cruza es un puente de telaraña (capa Climbing)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Climbing"))
         {
             isConnected = true;
             Debug.Log($"[LISTA DE MISIONES] ¡Plataforma conectada con éxito en: {name}!");

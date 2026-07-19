@@ -65,8 +65,8 @@ public class LeverDoorSystem : MonoBehaviour
             isPlayerInside = true;
         }
 
-        // Cas B: És una teranyina (objecte generat a la capa Walkable)
-        if (other.gameObject.layer == LayerMask.NameToLayer("Walkable"))
+        // Cas B: És una teranyina (objecte generat a la capa Climbing)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Climbing"))
         {
             websInsideCount++;
         }
