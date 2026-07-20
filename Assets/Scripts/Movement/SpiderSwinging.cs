@@ -5,17 +5,17 @@ public class SpiderSwingingSimple : MonoBehaviour
 {
     [Header("Referències d'Arquitectura")]
     [SerializeField] private InputReader inputReader;
-    [SerializeField] private Transform cam; // La teva Main Camera
+    [SerializeField] private Transform cam;
     [SerializeField] private Transform gunTip; // Des d'on surt gràficament el fil
     [SerializeField] private LineRenderer lr; // El component de línia blanca
 
     [Header("Configuració del Swing")]
-    public LayerMask swingableLayers; // Capa "Walkable" o on et vulguis agafar
+    public LayerMask swingableLayers;
     public float maxSwingDistance = 25f;
-    public float swingThrustForce = 1500f; // Força d'impuls del WASD a l'aire
+    public float swingThrustForce = 1500f;
 
     [Header("Ajustos Físics de la Corda")]
-    public float springForce = 4.5f;
+    public float springForce = 4.5f; // Esta implementat peró en el joc no es fa servir, però el deixem per si vols ajustar-lo més endavant
     public float damper = 7f;
     public float massScale = 4.5f;
 
@@ -33,7 +33,7 @@ public class SpiderSwingingSimple : MonoBehaviour
 
     void Start()
     {
-        // Enllaçem amb el teu Input System existent
+        // Enllaçem amb Input System
         inputReader.swingStartedEvent += StartSwing;
         inputReader.swingCanceledEvent += StopSwing;
         inputReader.moveEvent += HandleMoveInput;
@@ -41,6 +41,7 @@ public class SpiderSwingingSimple : MonoBehaviour
 
     void OnDestroy()
     {
+        // Ens desubscrivim dels esdeveniments per evitar errors quan l'objecte es destrueix
         inputReader.swingStartedEvent -= StartSwing;
         inputReader.swingCanceledEvent -= StopSwing;
         inputReader.moveEvent -= HandleMoveInput;
@@ -67,25 +68,23 @@ public class SpiderSwingingSimple : MonoBehaviour
 
     private void StartSwing()
     {
+        // Fem un raycast des de la càmera cap endavant per trobar un punt de swing vàlid
         RaycastHit hit;
         Ray ray = new Ray(cam.position, cam.forward);
 
         if (Physics.Raycast(ray, out hit, maxSwingDistance, swingableLayers))
         {
             swingPoint = hit.point;
-
+            
             joint = gameObject.AddComponent<SpringJoint>();
             joint.autoConfigureConnectedAnchor = false;
 
-            // ======================================================================
-            // CORREGIT: CONTROL D'ESPAI LOCAL VS MÓN (SISTEMA DE SEGURETAT)
-            // ======================================================================
-            if (hit.rigidbody != null)
+            if (hit.rigidbody != null) // Aquesta condició comprova si l'objecte impactat té un Rigidbody, indicant que és un objecte mòbil
             {
                 // Si té Rigidbody (la pedra), connectem el cos
                 joint.connectedBody = hit.rigidbody;
 
-                // TRUC CLAU: Traduïm el punt del món (hit.point) a la posició local de la pedra
+                // Traduïm el punt del món (hit.point) a la posició local de la pedra
                 joint.connectedAnchor = hit.transform.InverseTransformPoint(hit.point);
             }
             else
@@ -94,7 +93,6 @@ public class SpiderSwingingSimple : MonoBehaviour
                 joint.connectedBody = null;
                 joint.connectedAnchor = swingPoint;
             }
-            // ======================================================================
 
             float distanceFromPoint = Vector3.Distance(transform.position, swingPoint);
 

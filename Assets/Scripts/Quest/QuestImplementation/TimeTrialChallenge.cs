@@ -4,7 +4,7 @@ public class TimeTrialChallenge : MonoBehaviour
 {
     [Header("Configuració del Repte")]
     [SerializeField] private string timeTrialMissionID = "cursa_vertical";
-    [SerializeField] private float timeLimit = 30f; // Temps en segons per pujar
+    [SerializeField] private float timeLimit = 30f;
 
     private float currentTime;
     private bool timerActive = false;
@@ -35,11 +35,11 @@ public class TimeTrialChallenge : MonoBehaviour
         currentTime = timeLimit;
         timerActive = true;
         challengeCompleted = false;
-        Debug.Log("Cursa contrarrellotge Iniciada! Puja al cim!");
+        //Debug.Log("Cursa contrarrellotge Iniciada! Puja al cim!");
 
         if (MissionManager.Instance != null)
         {
-            MissionManager.Instance.ActivateMission(timeTrialMissionID);
+            //MissionManager.Instance.ActivateMission(timeTrialMissionID);
         }
     }
 
@@ -56,17 +56,14 @@ public class TimeTrialChallenge : MonoBehaviour
 
     private void TimeTrialFailed()
     {
-        Debug.LogError("No has arribat a temps! Repte fallit.");
+        //Debug.LogError("No has arribat a temps! Repte fallit.");
         if (MissionManager.Instance != null)
         {
             MissionManager.Instance.activeTimerText = "Fallit!";
             MissionManager.Instance.UpdateQuestTrackerUI();
         }
-        // Aquí pots activar el teu Loss Menu en el futur
     }
 
-
-    // TRIGGER DE LA META: Es col·loca al cim del penya-segat
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player") && timerActive && !challengeCompleted)
@@ -77,7 +74,6 @@ public class TimeTrialChallenge : MonoBehaviour
 
             if (MissionManager.Instance != null)
             {
-                // NOU: Netegem el text del timer perquè ja hem guanyat i sumem progrés
                 MissionManager.Instance.activeTimerText = "";
                 MissionManager.Instance.ProgressMission(timeTrialMissionID, 1);
             }

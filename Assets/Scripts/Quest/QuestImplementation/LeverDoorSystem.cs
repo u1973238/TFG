@@ -6,8 +6,8 @@ public class LeverDoorSystem : MonoBehaviour
     [SerializeField] private string missionID = "salvar_animals";
 
     [Header("Referències d'Elements")]
-    [SerializeField] private Transform doorObject;   // La porta que s'obrirà
-    [SerializeField] private Transform leverHandle;  // El pal de la palanca que rotarà
+    [SerializeField] private Transform doorObject;  
+    [SerializeField] private Transform leverHandle; 
 
     [Header("Paràmetres de Moviment")]
     [SerializeField] private Vector3 doorOpenOffset = new Vector3(0, -5f, 0);
@@ -43,7 +43,7 @@ public class LeverDoorSystem : MonoBehaviour
                 isDoorOpen = true;
                 if (MissionManager.Instance != null)
                 {
-                    MissionManager.Instance.ProgressMission(missionID, 1);
+                    MissionManager.Instance.ProgressMission(missionID, 0); // Codi entic, es per si la misio es completada amb aquesta acció
                 }
             }
         }
@@ -56,7 +56,6 @@ public class LeverDoorSystem : MonoBehaviour
         }
     }
 
-    // DETECCIÓ: Quan alguna cosa entra en contacte amb la palanca
     private void OnTriggerEnter(Collider other)
     {
         // Cas A: És el jugador (l'aranya)
@@ -72,7 +71,6 @@ public class LeverDoorSystem : MonoBehaviour
         }
     }
 
-    // DETECCIÓ: Quan alguna cosa perd el contacte amb la palanca
     private void OnTriggerExit(Collider other)
     {
         // Cas A: L'aranya marxa

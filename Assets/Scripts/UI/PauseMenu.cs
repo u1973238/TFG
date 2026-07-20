@@ -1,75 +1,79 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // IMPRESCINDIBLE per poder reiniciar la partida
+using UnityEngine.SceneManagement;
+using System;
 
 public class PauseMenu : MonoBehaviour
 {
+    [Header("Arquitectura d'Inputs")]
+    [SerializeField] private InputReader inputReader;
+
     [Header("Referències de UI")]
-    [SerializeField] private GameObject pausePanel; // El panell gris de fons amb els botons
+    [SerializeField] private GameObject pausePanel;
 
     private bool isPaused = false;
 
-    void Start()
-    {
-        // Ens assegurem que el menú comenci tancat en arrencar el joc
-        if (pausePanel != null) pausePanel.SetActive(false);
-    }
 
-    void Update()
+    private void OnEnable()
     {
-        // Escoltem si el jugador prem la tecla ESCAPAT (Escape)
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (inputReader != null)
         {
-            if (isPaused)
-            {
-                ResumeGame();
-            }
-            else
-            {
-                PauseGame();
-            }
+            inputReader.pauseMenuEvent += TogglePause;
         }
     }
 
-    // Funció per treure la pausa
+    private void OnDisable()
+    {
+        if (inputReader != null)
+        {
+            inputReader.pauseMenuEvent -= TogglePause;
+        }
+    }
+
+    void Start()
+    {
+        if (pausePanel != null) pausePanel.SetActive(false);
+    }
+
+    public void TogglePause()
+    {
+        if (isPaused)
+        {
+            ResumeGame();
+        }
+        else
+        {
+            PauseGame();
+        }
+    }
+
     public void ResumeGame()
     {
         pausePanel.SetActive(false);
-        Time.timeScale = 1f; // El temps torna a córrer normalment
+        Time.timeScale = 1f;
         isPaused = false;
 
-        // Tornem a bloquejar i amagar el ratolí perquè l'aranya pugui girar la càmera
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
 
-    // Funció per posar la pausa
     public void PauseGame()
     {
         pausePanel.SetActive(true);
-        Time.timeScale = 0f; // El joc es congela completament!
+        Time.timeScale = 0f;
         isPaused = true;
 
-        // Alliberem el ratolí i el fem visible perquè el jugador pugui clicar els botons
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    // Funció per al botó de Reiniciar
     public void RestartLevel()
     {
-        // Alerta: Sempre s'ha de reactivar el temps abans de carregar una escena, 
-        // si no, la nova escena començarà congelada a zero!
         Time.timeScale = 1f;
-
-        // Carrega exactament la mateixa escena on estàs jugant ara mateix
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
-    // Funció per tancar el joc
     public void QuitGame()
     {
-        Debug.Log("Sortint del joc... (Això només funciona en el joc exportat .exe)");
-        Application.Quit(); // Tanca l'aplicació
+        Application.Quit();
     }
 }
-

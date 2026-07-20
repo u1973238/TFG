@@ -8,8 +8,8 @@ public class SpiderLocomotion : MonoBehaviour
 
     [Header("Configuració de Moviment")]
     public float walkSpeed = 5f;
-    public float sprintMultiplier = 1.8f; // Multiplicador de velocitat (Còrrer)
-    private float currentSpeed; // La velocitat real que s'aplica a cada frame
+    public float sprintMultiplier = 1.8f;
+    private float currentSpeed;
     public float rotationSpeed = 10f;
 
     [Header("Configuració de Salt")]
@@ -31,12 +31,13 @@ public class SpiderLocomotion : MonoBehaviour
         // Ens subscrivim als esdeveniments
         inputReader.moveEvent += HandleMoveInput;
         inputReader.jumpEvent += HandleJump;
-        inputReader.sprintStartedEvent += StartSprinting; // <-- NOU
-        inputReader.sprintCanceledEvent += StopSprinting; // <-- NOU
+        inputReader.sprintStartedEvent += StartSprinting;
+        inputReader.sprintCanceledEvent += StopSprinting;
     }
 
     void OnDestroy()
     {
+        // Ens desubscrivim dels esdeveniments per evitar errors quan l'objecte es destrueix
         inputReader.moveEvent -= HandleMoveInput;
         inputReader.jumpEvent -= HandleJump;
         inputReader.sprintStartedEvent -= StartSprinting;
@@ -45,12 +46,13 @@ public class SpiderLocomotion : MonoBehaviour
 
     private void HandleMoveInput(Vector2 input) => movementInput = input;
 
-    // <-- NOU: Canvis de velocitat asíncrons
+    // Canvis de velocitat asíncrons
     private void StartSprinting() => currentSpeed = walkSpeed * sprintMultiplier;
     private void StopSprinting() => currentSpeed = walkSpeed;
 
     private void HandleJump()
     {
+        // Només permet saltar si estem a terra
         if (isGrounded)
         {
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -58,6 +60,7 @@ public class SpiderLocomotion : MonoBehaviour
         }
     }
 
+    // Actualitzacions de física
     void FixedUpdate()
     {
         CheckGround();
@@ -89,7 +92,6 @@ public class SpiderLocomotion : MonoBehaviour
 
         Vector3 moveDirection = (camForward * movementInput.y) + (camRight * movementInput.x);
 
-        // NOU: Ara fem servir la variable currentSpeed en lloc de walkSpeed fixa
         rb.MovePosition(rb.position + moveDirection * currentSpeed * Time.fixedDeltaTime);
 
         if (moveDirection.sqrMagnitude > 0.01f)

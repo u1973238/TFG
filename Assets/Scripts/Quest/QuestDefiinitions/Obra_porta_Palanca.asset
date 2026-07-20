@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Obra_porta_Palanca
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionID: Palanca
-  title: Obra la porta i recull la poma
+  title: Obra la porta i recull objecte
   description: El jugadro ha d'activar la palanca i recollir lobjecte
   requiredAmount: 1

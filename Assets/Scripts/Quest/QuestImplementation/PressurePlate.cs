@@ -11,7 +11,6 @@ public class PressurePlate : MonoBehaviour
     [SerializeField] private float plateDownOffset = 0.15f;
     [SerializeField] private string targetTag = "Pushable";
 
-    // NOU: Comptador per saber quants cossos pesants hi ha sobre la placa
     private int weightsOnTopCount = 0;
 
     private Vector3 doorInitialPosition;
@@ -45,7 +44,7 @@ public class PressurePlate : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        // NOU: Si entra la pedra O si entra el jugador (l'aranya), sumem pes
+        // Si entra la pedra O si entra el jugador (l'aranya), sumem pes
         if (other.CompareTag(targetTag) || other.CompareTag("Player"))
         {
             weightsOnTopCount++;
@@ -55,7 +54,7 @@ public class PressurePlate : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        // NOU: Si surt la pedra O surt el jugador, restem pes
+        // Si surt la pedra O surt el jugador, restem pes
         if (other.CompareTag(targetTag) || other.CompareTag("Player"))
         {
             weightsOnTopCount--;

@@ -7,11 +7,11 @@ public class SpiderClimbing : MonoBehaviour
     public LayerMask climbableLayers;
     public float detectionRange = 0.8f;
     public float climbSpeed = 4f;
-    public float rotationSpeed = 12f; // Un xic més ràpida per a una resposta instantània
+    public float rotationSpeed = 12f;
 
     [Header("Referències Visuals i de Càmera")]
     [SerializeField] private Transform characterMesh;
-    [SerializeField] private Transform cam; // NOU: Arrossega aquí la teva Main Camera!
+    [SerializeField] private Transform cam;
 
     [Header("Ajustos del Model Visual a la Paret")]
     public Vector3 climbingRotationOffset = new Vector3(0, 90, 0);
@@ -24,13 +24,10 @@ public class SpiderClimbing : MonoBehaviour
     private Quaternion groundInitialLocalRotation;
 
     [Header("CONFIGURACIÓ DEL SALT DE PARET")]
-    [SerializeField] private InputReader inputReader; // La teva referència d'inputs
-    [SerializeField] private float forcaSaltAmunt = 8f;   // Força cap al cel
-    [SerializeField] private float forcaSaltEnrere = 10f; // Força per separar-se de la paret
-    [SerializeField] private float cooldownTornarAEscalar = 0.25f; // Temps de seguretat a l'aire
-
-    private float tempsCooldownEscalada = 0f;
-
+    [SerializeField] private InputReader inputReader;
+    [SerializeField] private float forcaSaltAmunt = 8f; 
+    [SerializeField] private float forcaSaltEnrere = 10f; 
+    [SerializeField] private float cooldownTornarAEscalar = 0.25f;
 
     private void Awake()
     {
@@ -45,6 +42,7 @@ public class SpiderClimbing : MonoBehaviour
         if (locomotion != null)
         {
             locomotion.enabled = true; // Assegurem que el locomotion comenci activat
+            // Em donava problemes a la hora d'inicar el joc que el locomotion estigués desactivat, així que ho deixo activat per defecte i només el desactivo quan escalem.
         }
         if (characterMesh != null) {
             groundInitialLocalRotation = characterMesh.localRotation;
@@ -52,11 +50,10 @@ public class SpiderClimbing : MonoBehaviour
 
         if (inputReader != null)
         {
-            inputReader.jumpEvent += ExecutarSaltDeParet; // Substitueix 'jumpEvent' pel nom exacte que tinguis al teu InputReader
+            inputReader.jumpEvent += ExecutarSaltDeParet; // Substitoeixo 'jumpEvent'
         }
 
-
-        // Si no has posat la càmera a l'inspector, la busquem automàticament
+        // Si no hi ha la càmera a l'inspector, la busquem
         if (cam == null && Camera.main != null)
         {
             cam = Camera.main.transform;
@@ -101,21 +98,21 @@ public class SpiderClimbing : MonoBehaviour
         else
         {
             // Triple detecció adaptativa per a angles, sostres i relleus
-            // Llamp A - Sota la panxa
+            // Sota la panxa
             if (Physics.Raycast(rayOrigin, -wallNormal, out RaycastHit hitBelly, adjustedRange, climbableLayers))
             {
                 hitSomething = true;
                 targetNormal = hitBelly.normal;
             }
 
-            // Llamp B - Davant de l'aranya
+            // Davant de l'aranya
             if (Physics.Raycast(rayOrigin, transform.forward * adjustedRange, out RaycastHit hitFront, adjustedRange, climbableLayers))
             {
                 hitSomething = true;
                 targetNormal = hitFront.normal;
             }
 
-            // Llamp C - Diagonal davant-avall (per saltar vores de plataformes)
+            // Diagonal davant-avall (per saltar cantonades)
             Vector3 diagonalDir = (transform.forward - transform.up).normalized;
             if (Physics.Raycast(rayOrigin, diagonalDir, out RaycastHit hitDiag, adjustedRange * 1.3f, climbableLayers))
             {
@@ -149,8 +146,7 @@ public class SpiderClimbing : MonoBehaviour
         isClimbing = false;
         rb.useGravity = true;
 
-        // NOU TRUC: Quan l'aranya baixa de la paret, forcem que el cos real es torni a posar dret 
-        // respecte al món, però mantenint cap a on mirava horitzontalment.
+        // Quan l'aranya baixa de la paret, forcem que el cos real es torni a posar dret 
         Vector3 currentForward = transform.forward;
         currentForward.y = 0;
         if (currentForward == Vector3.zero) currentForward = Vector3.forward;
@@ -164,18 +160,12 @@ public class SpiderClimbing : MonoBehaviour
         float verticalInput = Input.GetAxisRaw("Vertical");
         float horizontalInput = Input.GetAxisRaw("Horizontal");
 
-        // ======================================================================
-        // CÀLCUL DE MOVIMENT RELATIU A LA PANTALLA (CAMERA-RELATIVE)
-        // ======================================================================
         // Creem vectors direccionals projectats a la paret segons la vista de la càmera
         Vector3 screenClimbUp = Vector3.Cross(cam.right, wallNormal).normalized;
         Vector3 screenClimbRight = Vector3.Cross(wallNormal, screenClimbUp).normalized;
 
         Vector3 climbDirection = (screenClimbUp * verticalInput + screenClimbRight * horizontalInput).normalized;
 
-        // ======================================================================
-        // ROTACIÓ DEL COS REAL (ORIENTACIÓ AUTOMÀTICA)
-        // ======================================================================
         Quaternion targetBodyRotation;
 
         if (climbDirection != Vector3.zero)
@@ -192,13 +182,13 @@ public class SpiderClimbing : MonoBehaviour
         // Girem el Rigidbody real del personatge
         rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetBodyRotation, Time.fixedDeltaTime * rotationSpeed));
 
-        // Girem el teu mesh visual aplicant l'offset que tinguis configurat de la teva malla
+        // Girem el teu mesh visual aplicant l'offset
         if (characterMesh != null)
         {
             characterMesh.localRotation = Quaternion.Slerp(characterMesh.localRotation, Quaternion.Euler(climbingRotationOffset), Time.fixedDeltaTime * rotationSpeed);
         }
 
-        // Movem l'objecte de forma neta en la direcció calculada
+        // Movem l'objecte en la direcció calculada
         rb.MovePosition(rb.position + climbDirection * climbSpeed * Time.fixedDeltaTime);
     }
     private void ExecutarSaltDeParet()
@@ -212,16 +202,12 @@ public class SpiderClimbing : MonoBehaviour
 
         rb.useGravity = true;
 
-        // Calculem la direcció de l'impuls:
-        // Utilitzem la 'wallNormal' (que mira cap enfora de la paret) i la sumem amb una mica de força cap amunt
+        // Calculem la direcció de l'impuls
         Vector3 direccioSalt = (wallNormal * forcaSaltEnrere) + (Vector3.up * forcaSaltAmunt);
 
         // Apliquem la força física al Rigidbody de l'aranya
-        rb.linearVelocity = Vector3.zero; // Netejem la velocitat actual perquè el salt sigui perfecte i controlat
+        rb.linearVelocity = Vector3.zero;
         rb.AddForce(direccioSalt, ForceMode.Impulse);
-
-        // Activem el temporitzador de seguretat perquè no es reenganxi immediatament
-        tempsCooldownEscalada = cooldownTornarAEscalar;
     }
 
     private void ResetMeshRotation()

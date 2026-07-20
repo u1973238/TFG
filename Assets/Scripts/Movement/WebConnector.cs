@@ -6,11 +6,11 @@ public class WebConnector : MonoBehaviour
     [SerializeField] private InputReader inputReader;
 
     [Header("Configuració dels Ponts")]
-    public LayerMask anchorLayers; // Superfícies aptes per fixar els ponts (ex: Walkable)
-    public float maxConnectDistance = 30f; // Distància màxima del pont
-    public float bridgeWidth = 0.4f; // Amplada de la passarel·la física de teranyina
+    public LayerMask anchorLayers;
+    public float maxConnectDistance = 30f;
+    public float bridgeWidth = 0.4f;
 
-    private Vector3? firstAnchorPoint = null; // Primer punt guardat (nullable)
+    private Vector3? firstAnchorPoint = null;
 
     void Start()
     {
@@ -34,8 +34,7 @@ public class WebConnector : MonoBehaviour
             {
                 // 1. PRIMER CLIC: Guardem l'origen de la teranyina
                 firstAnchorPoint = hit.point;
-                Debug.Log($"Primer ancoratge col·locat a: {firstAnchorPoint}");
-                // (Opcional: Podries fer aparcar una petita partícula o punt visual aquí)
+                //Debug.Log($"Primer ancoratge col·locat a: {firstAnchorPoint}");
             }
             else
             {
@@ -56,7 +55,7 @@ public class WebConnector : MonoBehaviour
 
     private void GenerateWebBridge(Vector3 start, Vector3 end)
     {
-        // 1. Creem un GameObject buit que contindrà la física i gràfics del pont
+        // Creem un GameObject buit que contindrà la física i gràfics del pont
         GameObject bridge = new GameObject("WebBridge_Dynamic");
 
         // El col·loquem al centre exacte entre els dos punts d'ancoratge
@@ -66,19 +65,19 @@ public class WebConnector : MonoBehaviour
         // Orientem el pont des de l'inici fins al final
         bridge.transform.LookAt(end);
 
-        // 2. Afegim el component visual (LineRenderer) per dibuixar la teranyina
+        // Afegim el component visual (LineRenderer) per dibuixar la teranyina
         LineRenderer lr = bridge.AddComponent<LineRenderer>();
         lr.startWidth = bridgeWidth;
         lr.endWidth = bridgeWidth;
         lr.material = new Material(Shader.Find("Sprites/Default"));
-        lr.startColor = new Color(0.9f, 0.9f, 0.9f, 0.8f); // Blanc una mica transparent
+        lr.startColor = new Color(0.9f, 0.9f, 0.9f, 0.8f);
         lr.endColor = new Color(0.9f, 0.9f, 0.9f, 0.8f);
 
         // Definim els dos punts de la línia respecte al món global
         lr.SetPosition(0, start);
         lr.SetPosition(1, end);
 
-        // 3. Afegim la col·lisió física (BoxCollider) perquè l'aranya hi camini per sobre
+        // 3. Afegim la BoxCollider perquè l'aranya hi camini per sobre
         BoxCollider boxCollider = bridge.AddComponent<BoxCollider>();
 
         float distance = Vector3.Distance(start, end);
@@ -88,6 +87,6 @@ public class WebConnector : MonoBehaviour
         // Assignem el pont a la capa "Climbing" perquè el nostre script de terra el detecti
         bridge.layer = LayerMask.NameToLayer("Climbing");
 
-        Debug.Log($"Pont de teranyina de {distance:F2} metres de longitud creat amb èxit!");
+        //Debug.Log($"Pont de teranyina de {distance:F2} metres de longitud creat amb èxit!");
     }
 }

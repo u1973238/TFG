@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro; // Requerit per controlar el Quest Tracker de la UI
+using TMPro;
 
 public class MissionManager : MonoBehaviour
 {
     public static MissionManager Instance { get; private set; }
 
     [Header("UI Component")]
-    [SerializeField] private TextMeshProUGUI questTrackerText; // El text del Quest Tracker de la teva pantalla
+    [SerializeField] private TextMeshProUGUI questTrackerText; 
 
     [Header("Base de Dades de Missions")]
-    public List<MissionData> allMissions; // Llista amb totes les missions del joc
+    public List<MissionData> allMissions; 
 
-    [System.NonSerialized] public string activeTimerText = ""; // Text temporal per mostrar el cronòmetre de la cursa
+    [System.NonSerialized] public string activeTimerText = ""; 
 
     void Awake()
     {
@@ -39,7 +39,7 @@ public class MissionManager : MonoBehaviour
         if (m != null && !m.isActive && !m.isCompleted)
         {
             m.isActive = true;
-            Debug.Log($"Missió activada: {m.title}");
+            //Debug.Log($"Missió activada: {m.title}");
             UpdateQuestTrackerUI();
         }
     }
@@ -57,7 +57,8 @@ public class MissionManager : MonoBehaviour
             {
                 m.currentAmount = m.requiredAmount;
                 m.isCompleted = true;
-                Debug.Log($"Missió COMPLETADA: {m.title}");
+                //Debug.Log($"Missió COMPLETADA: {m.title}");
+                ComprovarVictoriaGlobal();
             }
 
             UpdateQuestTrackerUI();
@@ -66,7 +67,22 @@ public class MissionManager : MonoBehaviour
 
         return false; // Retornem false: Missió bloquejada o inactiva!
     }
+    private void ComprovarVictoriaGlobal()
+    {
+        if (allMissions == null || allMissions.Count == 0) return;
+        foreach (var m in allMissions)
+        {
+            // Si trobem ALMENYS UNA missió que encara no està completada, sortim
+            if (!m.isCompleted) return;
+        }
+        // Si el bucle acaba i TOTES les missions tenen 'isCompleted = true':
+        //Debug.Log("TOTES LES MISSIONS COMPLETADES");
 
+        if (MenuVictoria.Instance != null)
+        {
+            MenuVictoria.Instance.MostrarPantallaVictoria();
+        }
+    }
 
     public void UpdateQuestTrackerUI()
     {
@@ -89,7 +105,7 @@ public class MissionManager : MonoBehaviour
                     // Mostrem el títol i el progrés normal
                     textVisual += $"• {m.title}: {m.currentAmount} / {m.requiredAmount}";
 
-                    // NOU: Si és la cursa vertical i tenim el rellotge actiu, l'afegim al costat!
+                    // Si és la cursa vertical i tenim el rellotge actiu, l'afegim al costat!
                     if (m.missionID == "Cursa_vertical" && !string.IsNullOrEmpty(activeTimerText))
                     {
                         textVisual += $" ({activeTimerText})";

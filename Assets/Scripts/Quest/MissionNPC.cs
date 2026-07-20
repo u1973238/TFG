@@ -8,7 +8,7 @@ public class MissionNPC : MonoBehaviour
     public MissionData missionToGive;
 
     [Header("Interfície Flotant (NOU)")]
-    [SerializeField] private GameObject visualPrompt; // El cartell de "Press E"
+    [SerializeField] private GameObject visualPrompt;
     [SerializeField] private TextMeshProUGUI liveDialog;
 
     [Header("Diàlegs de text (Depuració)")]
@@ -24,7 +24,6 @@ public class MissionNPC : MonoBehaviour
     {
         inputReader.interactEvent += HandleInteraction;
 
-        // Ens assegurem que el cartell comenci amagat al principi del joc
         if (visualPrompt != null)
         {
             visualPrompt.SetActive(false);
@@ -64,7 +63,7 @@ public class MissionNPC : MonoBehaviour
         {
             playerInRange = true;
 
-            // NOU: Mostrem el cartell "Press E" quan l'aranya s'apropa
+            // Mostrem el cartell "Press E" quan l'aranya s'apropa
             if (visualPrompt != null)
             {
                 visualPrompt.SetActive(true);
@@ -78,11 +77,11 @@ public class MissionNPC : MonoBehaviour
         {
             playerInRange = false;
 
-            // NOU: Amaguem el cartell quan l'aranya s'allunya
+            // Amaguem el cartell quan l'aranya s'allunya
             if (visualPrompt != null)
             {
                 visualPrompt.SetActive(false);
-                liveDialog.text = interactionPrompt; // Tornem al text de prompt quan l'aranya s'allunya
+                liveDialog.text = interactionPrompt;
             }
         }
     }

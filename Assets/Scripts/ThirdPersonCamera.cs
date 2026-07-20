@@ -4,13 +4,13 @@ public class ThirdPersonCamera : MonoBehaviour
 {
     [Header("Referències d'Arquitectura")]
     [SerializeField] private InputReader inputReader;
-    [SerializeField] private Transform playerTransform; // El personatge a qui seguir
+    [SerializeField] private Transform playerTransform;
 
     [Header("Configuració de Distàncies")]
-    public Vector3 offset = new Vector3(0f, 1.5f, -4f); // Posició de la càmera respecte al jugador
+    public Vector3 offset = new Vector3(0f, 1.5f, -4f);
     public float sensitivity = 0.2f;
     public float smoothSpeed = 8f;
-    public LayerMask collisionLayers; // Capes que bloquegen la visió (de moment posa "Nothing")
+    public LayerMask collisionLayers; // Capes que bloquegen la visió
 
     private float yaw = 0f;
     private float pitch = 0f;
@@ -28,11 +28,13 @@ public class ThirdPersonCamera : MonoBehaviour
 
     void OnDestroy()
     {
+        // Ens desubscrivim de l'event per evitar errors quan l'objecte es destrueixi
         inputReader.lookEvent -= HandleLookInput;
     }
 
     private void HandleLookInput(Vector2 input)
     {
+        // Guardem l'input del ratolí per utilitzar-lo a LateUpdate
         lookInput = input;
     }
 
@@ -63,6 +65,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
     private Vector3 CheckCameraCollision(Vector3 startPoint, Vector3 endPoint)
     {
+        // Fem un raycast des del punt de partida fins al punt final per veure si hi ha alguna col·lisió
         RaycastHit hit;
         Vector3 direction = endPoint - startPoint;
         float distance = direction.magnitude;

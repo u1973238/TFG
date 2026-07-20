@@ -27,7 +27,7 @@ public class MissionCollectible : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("No pots recollir aquest objecte encara. Parla primer amb l'animal!");
+                    //Debug.LogWarning("No pots recollir aquest objecte encara. Parla primer amb l'animal!");
                 }
             }
         }

@@ -30,9 +30,6 @@ public class RaceNPC : MonoBehaviour
         {
             // Donem el tret de sortida a la cursa i activem el cronòmetre de la meta!
             challengeMeta.StartChallenge();
-
-            // Opcional: Desactivem el cartell de parlar perquè ja estem corrent
-            if (visualPrompt != null) visualPrompt.SetActive(false);
         }
     }
 
