@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: Missio_Lista_Plataformas
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionID: conectar_plataformas
-  title: Salvar animal atrapat
-  description: El jugador ha de conectar varies plataformes per poder fe baixar uns
-    animals atrapast
+  title: "Salva l'animal atrapat"
+  description: "El jugador ha de connectar les plataformes amb un pont de teranyina perqu\xE8 l'animal atrapat pugui baixar."
   requiredAmount: 1
+  requiresHandIn: 1
+  reward: 3
+  rewardValue: 0.2
+  requiredMissions: []

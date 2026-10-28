@@ -3,12 +3,13 @@ using UnityEngine;
 public class TimeTrialChallenge : MonoBehaviour
 {
     [Header("Configuració del Repte")]
-    [SerializeField] private string timeTrialMissionID = "cursa_vertical";
+    [SerializeField] private string timeTrialMissionID = "Cursa_vertical";
     [SerializeField] private float timeLimit = 30f;
 
     private float currentTime;
     private bool timerActive = false;
     private bool challengeCompleted = false;
+    private int lastDisplayedTenths = -2; // Últimes dècimes mostrades; així només refresquem el text quan canvia
 
     void Update()
     {
@@ -35,6 +36,8 @@ public class TimeTrialChallenge : MonoBehaviour
         currentTime = timeLimit;
         timerActive = true;
         challengeCompleted = false;
+        lastDisplayedTenths = -2;
+        AudioManager.Play("race_start");
         //Debug.Log("Cursa contrarrellotge Iniciada! Puja al cim!");
 
         if (MissionManager.Instance != null)
@@ -47,8 +50,13 @@ public class TimeTrialChallenge : MonoBehaviour
     {
         if (MissionManager.Instance != null)
         {
+            // Només refresquem el Quest Tracker quan canvia el valor mostrat (10 cops per segon en lloc de cada fotograma)
+            int tenths = timerActive ? Mathf.RoundToInt(currentTime * 10f) : -1;
+            if (tenths == lastDisplayedTenths) return;
+            lastDisplayedTenths = tenths;
+
             // Enviem el temps formatat (amb un decimal) al MissionManager i actualitzem la UI
-            MissionManager.Instance.activeTimerText = timerActive ? $"{currentTime:F1}s" : "Temps esgotat!";
+            MissionManager.Instance.activeTimerText = timerActive ? $"{tenths / 10f:F1}s" : "Temps esgotat!";
             MissionManager.Instance.UpdateQuestTrackerUI();
         }
     }
@@ -57,6 +65,7 @@ public class TimeTrialChallenge : MonoBehaviour
     private void TimeTrialFailed()
     {
         //Debug.LogError("No has arribat a temps! Repte fallit.");
+        AudioManager.Play("fail");
         if (MissionManager.Instance != null)
         {
             MissionManager.Instance.activeTimerText = "Fallit!";
@@ -68,14 +77,14 @@ public class TimeTrialChallenge : MonoBehaviour
     {
         if (other.CompareTag("Player") && timerActive && !challengeCompleted)
         {
-            challengeCompleted = true;
             timerActive = false;
-            Debug.Log("Has arribat al cim a temps! Cursa completada.");
 
             if (MissionManager.Instance != null)
             {
                 MissionManager.Instance.activeTimerText = "";
-                MissionManager.Instance.ProgressMission(timeTrialMissionID, 1);
+
+                // Només donem la cursa per completada si el gestor accepta el progrés de la missió
+                challengeCompleted = MissionManager.Instance.ProgressMission(timeTrialMissionID, 1);
             }
         }
     }

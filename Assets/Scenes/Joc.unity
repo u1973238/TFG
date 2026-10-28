@@ -325,7 +325,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: JOC COMPLETAT!!!!
+  m_text: "Joc completat!"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -462,7 +462,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: PAUSE
+  m_text: PAUSA
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -552,16 +552,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegInicial
-      value: Hola! Pots ajudar-me a recollir aquests objectes? Es troben expercits
-        per tota la illa
+      value: "Hola! Em pots ajudar a recollir uns cubs daurats? Estan escampats per tota l'illa."
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegCompletat
-      value: Ja els has trobat tots!!!
+      value: "Ja els has trobat tots! Moltes gr\xE0cies!"
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: interactionPrompt
-      value: E per interactuar
+      value: Prem E per parlar
       objectReference: {fileID: 0}
     - target: {fileID: 6849948811695980304, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: m_LocalPosition.x
@@ -822,7 +821,6 @@ GameObject:
   - component: {fileID: 283818719}
   - component: {fileID: 283818718}
   - component: {fileID: 283818722}
-  - component: {fileID: 283818721}
   m_Layer: 0
   m_Name: Meta
   m_TagString: Untagged
@@ -923,21 +921,6 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 283818715}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
---- !u!114 &283818721
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 283818715}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 847a5a8d53ba92b40ae07aee2d230e06, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MissionCollectible
-  targetMissionID: Cursa_vertical
-  value: 1
-  rotationSpeed: 0
 --- !u!114 &283818722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -950,7 +933,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cdda1a03a0c9c94f8ae70240a4f177f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TimeTrialChallenge
-  timeTrialMissionID: cursa_vertical
+  timeTrialMissionID: Cursa_vertical
   timeLimit: 300
 --- !u!4 &295277319 stripped
 Transform:
@@ -1014,7 +997,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Resume
+  m_text: Continuar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1267,7 +1250,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 360924621365ee24e9d7273477cfcde7, type: 2}
   - {fileID: 11400000, guid: d28244d902dccf142a1e28ac853f1813, type: 2}
   - {fileID: 11400000, guid: 40a11559749f9ef46942d9d656b7ef84, type: 2}
-  - {fileID: 11400000, guid: d28244d902dccf142a1e28ac853f1813, type: 2}
 --- !u!4 &497912068
 Transform:
   m_ObjectHideFlags: 0
@@ -1745,7 +1727,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegInicial
-      value: Hola aranya! Pots provar d'engenxar la palanca amb una trenyina?
+      value: "Hola, aranya! La porta es tanca quan deixes anar la palanca. Pots enganxar-la amb una teranyina perqu\xE8 no torni enrere?"
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: missionToGive
@@ -1753,11 +1735,11 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: bfc3561e40318994bab422d48bc31d13, type: 2}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegCompletat
-      value: HA FUNCIONAT!!!
+      value: "Ha funcionat! Ara ja puc passar."
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: interactionPrompt
-      value: E per interactuar
+      value: Prem E per parlar
       objectReference: {fileID: 0}
     - target: {fileID: 6849948811695980304, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1906,9 +1888,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Restart
-
-'
+  m_text: Reiniciar
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2422,8 +2402,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegInicial
-      value: "Si et poses sobre la plataforma s'activa. Per\xF3 a la que surts es
-        torna a tancar."
+      value: "Si et poses sobre la placa, la porta s'obre, per\xF2 quan en surts es torna a tancar. Potser una roca pesaria prou..."
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: missionToGive
@@ -2435,7 +2414,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: interactionPrompt
-      value: E per interactuar
+      value: Prem E per parlar
       objectReference: {fileID: 0}
     - target: {fileID: 6849948811695980304, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2741,11 +2720,10 @@ MonoBehaviour:
   missionToGive: {fileID: 11400000, guid: d28244d902dccf142a1e28ac853f1813, type: 2}
   visualPrompt: {fileID: 1259746694}
   liveDialog: {fileID: 46998345}
-  interactionPrompt: E per interactuar
-  dialegInicial: "Vols provar de batre el meu recor per aribar al punt m\xE9s alt
-    de l'arbre?"
-  dialegEnProgres: Ets un lent!!!
-  dialegCompletat: Ets molt rapid!!!
+  interactionPrompt: Prem E per parlar
+  dialegInicial: "Vols batre el meu r\xE8cord? Arriba a dalt de tot de l'arbre abans que s'acabi el temps!"
+  dialegEnProgres: "Encara no hi has arribat? Ets massa lent!"
+  dialegCompletat: "Ets molt r\xE0pid! M'has guanyat!"
 --- !u!1001 &1285447818
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3441,9 +3419,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'EXIT
-
-'
+  m_text: Sortir
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -3716,7 +3692,7 @@ MonoBehaviour:
   smoothSpeed: 8
   collisionLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 72
 --- !u!114 &1723503377
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3964,7 +3940,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegInicial
-      value: Prova de balencejar per les branques i passar per els aros
+      value: "Prova de balancejar-te per les branques i passar per tots els c\xE8rcols!"
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: missionToGive
@@ -3972,15 +3948,15 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 40a11559749f9ef46942d9d656b7ef84, type: 2}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegCompletat
-      value: Ja sap volar
+      value: "Ja saps volar!"
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegEnProgres
-      value: Que has caigut?
+      value: "Has caigut? Torna-ho a provar!"
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: interactionPrompt
-      value: E per interactuar
+      value: Prem E per parlar
       objectReference: {fileID: 0}
     - target: {fileID: 6849948811695980304, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: m_LocalPosition.x
@@ -4527,8 +4503,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegInicial
-      value: Ajuda! El meu germa s'ha quedat atrapat. Utilitza les teves trenyies
-        per fe un pon
+      value: "Ajuda! El meu germ\xE0 s'ha quedat atrapat. Fes servir les teves teranyines per fer-li un pont!"
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: missionToGive
@@ -4536,15 +4511,15 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 360924621365ee24e9d7273477cfcde7, type: 2}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegCompletat
-      value: "Moltes gr\xE0cies, Ara ja pot tornar"
+      value: "Moltes gr\xE0cies! Ara ja pot tornar a casa."
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: dialegEnProgres
-      value: Rapid, fes un pon amb les teves trenyines
+      value: "Afanya't! Fes un pont amb les teves teranyines."
       objectReference: {fileID: 0}
     - target: {fileID: 5905912528988797823, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: interactionPrompt
-      value: E per interactuar
+      value: Prem E per parlar
       objectReference: {fileID: 0}
     - target: {fileID: 6849948811695980304, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
       propertyPath: m_LocalPosition.x

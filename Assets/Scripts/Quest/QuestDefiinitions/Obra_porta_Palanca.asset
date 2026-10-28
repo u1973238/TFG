@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: Obra_porta_Palanca
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionID: Palanca
-  title: Obra la porta i recull objecte
-  description: El jugadro ha d'activar la palanca i recollir lobjecte
+  title: "Obra la porta i recull l'objecte"
+  description: "El jugador ha d'activar la palanca, fixar-la amb una teranyina i recollir l'objecte de darrere la porta."
   requiredAmount: 1
+  requiresHandIn: 1
+  reward: 1
+  rewardValue: 0.25
+  requiredMissions: []

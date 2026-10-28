@@ -13,7 +13,11 @@ MonoBehaviour:
   m_Name: Circuit_aeri
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionID: Cursa_aeria
-  title: Passa per els aros
-  description: A l'aire apareixerant uns aros i el jugador a traves dels seus moviments
-    ha de passar per eels
+  title: "Passa per tots els c\xE8rcols"
+  description: "Entre les cap\xE7ades dels arbres hi ha cinc c\xE8rcols a l'aire. El jugador hi ha de passar balancejant-se amb les teranyines."
   requiredAmount: 5
+  requiresHandIn: 1
+  reward: 5
+  rewardValue: 0.3
+  requiredMissions:
+  - {fileID: 11400000, guid: bfc3561e40318994bab422d48bc31d13, type: 2}

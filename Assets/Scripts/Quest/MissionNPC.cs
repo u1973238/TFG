@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -12,17 +13,24 @@ public class MissionNPC : MonoBehaviour
     [SerializeField] private TextMeshProUGUI liveDialog;
 
     [Header("Diàlegs de text (Depuració)")]
-    public string interactionPrompt = "Prem E per interactuar";
-    public string dialegInicial = "Hola aranya! Pots ajudar-me a recollir aquests objectes?";
+    public string interactionPrompt = "Prem E per parlar";
+    public string dialegInicial = "Hola, aranya! Em pots ajudar a recollir aquests objectes?";
     public string dialegEnProgres = "Encara estàs treballant en el meu encàrrec?";
-    public string dialegCompletat = "Uau, moltes gràcies per salvar-me!";
+    public string dialegCompletat = "Uau, moltes gràcies per salvar-me!"; // Es diu en lliurar la missió
+    public string dialegDespres = "Gràcies una altra vegada per la teva ajuda!"; // Quan ja està lliurada
+    public string dialegBloquejat = "Encara no estàs preparada per a això. Primer ajuda altres animals de l'illa."; // Si falta alguna missió prèvia
 
 
     private bool playerInRange = false;
+    private NPCAnimator npcAnimator;
 
     void Start()
     {
         inputReader.interactEvent += HandleInteraction;
+
+        // L'animació s'afegeix sola si el prefab encara no la té
+        npcAnimator = GetComponent<NPCAnimator>();
+        if (npcAnimator == null) npcAnimator = gameObject.AddComponent<NPCAnimator>();
 
         if (visualPrompt != null)
         {
@@ -39,22 +47,48 @@ public class MissionNPC : MonoBehaviour
     {
         if (!playerInRange) return;
 
+        // L'NPC fa un saltet i un so quan parla
+        if (npcAnimator != null) npcAnimator.Talk();
+        AudioManager.Play("talk");
+
         if (!missionToGive.isActive && !missionToGive.isCompleted)
         {
+            // Si cal acabar abans altres missions, l'NPC diu quines
+            List<MissionData> missing = MissionManager.Instance.GetMissingRequirements(missionToGive);
+            if (missing.Count > 0)
+            {
+                List<string> titles = missing.ConvertAll(m => m.title);
+                SetDialog(dialegBloquejat + "\n<size=80%><i>Abans: " + string.Join(", ", titles) + "</i></size>");
+                return;
+            }
+
             //Debug.Log($"[NPC {name}]: {dialegInicial}");
             MissionManager.Instance.ActivateMission(missionToGive.missionID);
-            liveDialog.text = dialegInicial; // Actualitzem el text del diàleg en pantalla
+            SetDialog(dialegInicial);
         }
         else if (missionToGive.isActive && !missionToGive.isCompleted)
         {
             //Debug.Log($"[NPC {name}]: {dialegEnProgres}");
-            liveDialog.text = dialegEnProgres; // Actualitzem el text del diàleg en pantalla
+            SetDialog(dialegEnProgres);
         }
-        else if (missionToGive.isCompleted)
+        else if (missionToGive.IsReadyToDeliver)
         {
-            //Debug.Log($"[NPC {name}]: {dialegCompletat}");
-            liveDialog.text = dialegCompletat; // Actualitzem el text del diàleg en pantalla
+            // Lliurament: la missió s'acaba i l'aranya rep la recompensa
+            MissionManager.Instance.DeliverMission(missionToGive, out string rewardText);
+            string text = dialegCompletat;
+            if (rewardText != "") text += "\n<size=80%><color=#FFD54A>Recompensa: " + rewardText + "</color></size>";
+            SetDialog(text);
         }
+        else
+        {
+            SetDialog(dialegDespres);
+        }
+    }
+
+    // Actualitzem el text del diàleg en pantalla
+    private void SetDialog(string text)
+    {
+        if (liveDialog != null) liveDialog.text = text;
     }
 
     private void OnTriggerEnter(Collider other)

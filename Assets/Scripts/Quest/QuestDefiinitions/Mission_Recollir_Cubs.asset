@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: Mission_Recollir_Cubs
   m_EditorClassIdentifier: Assembly-CSharp::MissionData
   missionID: CollectItems
-  title: Recull cubs
-  description: El jugadro ha de recorra l'arbre i recollir el cubs
+  title: "Recull els cubs daurats"
+  description: "El jugador ha de rec\xF3rrer l'arbre i l'illa per recollir tots els cubs daurats."
   requiredAmount: 4
+  requiresHandIn: 1
+  reward: 2
+  rewardValue: 0.25
+  requiredMissions: []

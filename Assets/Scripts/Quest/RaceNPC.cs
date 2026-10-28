@@ -15,6 +15,9 @@ public class RaceNPC : MonoBehaviour
     {
         inputReader.interactEvent += HandleInteraction;
         if (visualPrompt != null) visualPrompt.SetActive(false);
+
+        // L'animació s'afegeix sola si el prefab encara no la té
+        if (GetComponent<NPCAnimator>() == null) gameObject.AddComponent<NPCAnimator>();
     }
 
     void OnDestroy()
@@ -26,7 +29,11 @@ public class RaceNPC : MonoBehaviour
     {
         if (!playerInRange) return;
 
-        if (challengeMeta != null)
+        MissionNPC missionNPC = GetComponent<MissionNPC>();
+        MissionData mission = missionNPC != null ? missionNPC.missionToGive : null;
+        bool canRace = mission == null || (!mission.isCompleted && (mission.isActive || MissionManager.Instance == null || MissionManager.Instance.CanAccept(mission)));
+
+        if (challengeMeta != null && canRace)
         {
             // Donem el tret de sortida a la cursa i activem el cronòmetre de la meta!
             challengeMeta.StartChallenge();

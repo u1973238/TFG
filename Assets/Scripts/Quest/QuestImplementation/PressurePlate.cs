@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class PressurePlate : MonoBehaviour
+public class PressurePlate : MonoBehaviour, IPuzzleSwitch
 {
     [Header("Referències d'Elements")]
-    [SerializeField] private Transform doorObject;
+    [SerializeField] private Transform doorObject; // Opcional: també es pot deixar buit i fer servir un PuzzleMover
     [SerializeField] private Transform plateVisual;
 
     [Header("Configuració del Moviment")]
@@ -11,10 +12,16 @@ public class PressurePlate : MonoBehaviour
     [SerializeField] private float plateDownOffset = 0.15f;
     [SerializeField] private string targetTag = "Pushable";
 
-    private int weightsOnTopCount = 0;
+    [Header("Trencaclosques")]
+    [SerializeField] private bool playerCounts = true; // Si és fals, només hi compten les roques (l'aranya no pesa prou)
+
+    private readonly HashSet<Collider> weightsOnTop = new HashSet<Collider>();
 
     private Vector3 doorInitialPosition;
     private Vector3 plateInitialPosition;
+
+    // La placa està premuda (la poden escoltar altres elements del trencaclosques)
+    public bool IsActive => weightsOnTop.Count > 0;
 
     void Start()
     {
@@ -24,43 +31,50 @@ public class PressurePlate : MonoBehaviour
 
     void Update()
     {
-        // Si el comptador és major que 0 (hi ha l'aranya, la pedra o totes dues coses)
-        if (weightsOnTopCount > 0)
+        // Si un objecte desapareix mentre és a sobre, Unity no avisa amb OnTriggerExit: el traiem nosaltres
+        int before = weightsOnTop.Count;
+        weightsOnTop.RemoveWhere(weight => weight == null || !weight.enabled || !weight.gameObject.activeInHierarchy);
+        if (before > 0 && weightsOnTop.Count == 0) AudioManager.Play("door");
+
+        // Si hi ha algun pes (l'aranya, la pedra o totes dues coses)
+        if (IsActive)
         {
-            doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition + doorOpenOffset, Time.deltaTime * 3f);
-            plateVisual.localPosition = Vector3.Lerp(plateVisual.localPosition, plateInitialPosition - new Vector3(0, plateDownOffset, 0), Time.deltaTime * 5f);
+            if (doorObject != null) doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition + doorOpenOffset, Time.deltaTime * 3f);
+            if (plateVisual != null) plateVisual.localPosition = Vector3.Lerp(plateVisual.localPosition, plateInitialPosition - new Vector3(0, plateDownOffset, 0), Time.deltaTime * 5f);
         }
         else
         {
-            doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition, Time.deltaTime * 2f);
-            plateVisual.localPosition = Vector3.Lerp(plateVisual.localPosition, plateInitialPosition, Time.deltaTime * 2f);
+            if (doorObject != null) doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition, Time.deltaTime * 2f);
+            if (plateVisual != null) plateVisual.localPosition = Vector3.Lerp(plateVisual.localPosition, plateInitialPosition, Time.deltaTime * 2f);
         }
     }
 
     public bool IsPlateActivated()
     {
-        return weightsOnTopCount > 0;
+        return IsActive;
+    }
+
+    private bool CountsAsWeight(Collider other)
+    {
+        return other.CompareTag(targetTag) || (playerCounts && other.CompareTag("Player"));
     }
 
     private void OnTriggerEnter(Collider other)
     {
         // Si entra la pedra O si entra el jugador (l'aranya), sumem pes
-        if (other.CompareTag(targetTag) || other.CompareTag("Player"))
+        if (CountsAsWeight(other) && weightsOnTop.Add(other) && weightsOnTop.Count == 1)
         {
-            weightsOnTopCount++;
-            Debug.Log($"Pes afegit a la placa. Objectes a sobre: {weightsOnTopCount}");
+            AudioManager.Play("plate");
+            AudioManager.Play("door");
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
         // Si surt la pedra O surt el jugador, restem pes
-        if (other.CompareTag(targetTag) || other.CompareTag("Player"))
+        if (weightsOnTop.Remove(other) && weightsOnTop.Count == 0)
         {
-            weightsOnTopCount--;
-            if (weightsOnTopCount < 0) weightsOnTopCount = 0; // Seguretat
-            Debug.Log($"Pes retirat de la placa. Objectes a sobre: {weightsOnTopCount}");
+            AudioManager.Play("door");
         }
     }
 }
-

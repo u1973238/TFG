@@ -1,12 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 
-public class LeverDoorSystem : MonoBehaviour
+public class LeverDoorSystem : MonoBehaviour, IPuzzleSwitch
 {
     [Header("Configuració de la Missió")]
     [SerializeField] private string missionID = "salvar_animals";
 
     [Header("Referències d'Elements")]
-    [SerializeField] private Transform doorObject;  
+    [SerializeField] private Transform doorObject;  // Opcional: també es pot deixar buit i fer servir un PuzzleMover
     [SerializeField] private Transform leverHandle; 
 
     [Header("Paràmetres de Moviment")]
@@ -15,11 +16,14 @@ public class LeverDoorSystem : MonoBehaviour
 
     // Variables internes per controlar qui està activant la palanca
     private bool isPlayerInside = false;
-    private int websInsideCount = 0;
+    private readonly HashSet<Collider> websInside = new HashSet<Collider>();
     private bool isDoorOpen = false;
 
     private Vector3 doorInitialPosition;
     private Quaternion leverInitialRotation;
+
+    // La palanca està activada (la poden escoltar altres elements del trencaclosques)
+    public bool IsActive => isDoorOpen;
 
     void Start()
     {
@@ -29,18 +33,22 @@ public class LeverDoorSystem : MonoBehaviour
 
     void Update()
     {
+        // Els ponts de teranyina es poden esborrar; traiem els que ja no existeixen
+        websInside.RemoveWhere(web => web == null || !web.enabled || !web.gameObject.activeInHierarchy);
+
         // CONDICIÓ D'OBERTURA: La palanca s'activa si l'aranya està a dins O si hi ha alguna teranyina tocant-la
-        bool shouldOpen = isPlayerInside || (websInsideCount > 0);
+        bool shouldOpen = isPlayerInside || websInside.Count > 0;
 
         if (shouldOpen)
         {
             // Efecte visual: La palanca s'abaixa i la porta s'obre
-            leverHandle.localRotation = Quaternion.Slerp(leverHandle.localRotation, Quaternion.Euler(leverTargetRotation, 0, 0), Time.deltaTime * 5f);
-            doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition + doorOpenOffset, Time.deltaTime * 3f);
+            if (leverHandle != null) leverHandle.localRotation = Quaternion.Slerp(leverHandle.localRotation, Quaternion.Euler(leverTargetRotation, 0, 0), Time.deltaTime * 5f);
+            if (doorObject != null) doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition + doorOpenOffset, Time.deltaTime * 3f);
 
             if (!isDoorOpen)
             {
                 isDoorOpen = true;
+                AudioManager.Play("door");
                 if (MissionManager.Instance != null)
                 {
                     MissionManager.Instance.ProgressMission(missionID, 0); // Codi entic, es per si la misio es completada amb aquesta acció
@@ -50,9 +58,10 @@ public class LeverDoorSystem : MonoBehaviour
         else
         {
             // Efecte visual: La palanca puja sola i la porta es tanca de cop
+            if (isDoorOpen) AudioManager.Play("door");
             isDoorOpen = false;
-            leverHandle.localRotation = Quaternion.Slerp(leverHandle.localRotation, leverInitialRotation, Time.deltaTime * 2f);
-            doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition, Time.deltaTime * 2f);
+            if (leverHandle != null) leverHandle.localRotation = Quaternion.Slerp(leverHandle.localRotation, leverInitialRotation, Time.deltaTime * 2f);
+            if (doorObject != null) doorObject.position = Vector3.Lerp(doorObject.position, doorInitialPosition, Time.deltaTime * 2f);
         }
     }
 
@@ -67,7 +76,7 @@ public class LeverDoorSystem : MonoBehaviour
         // Cas B: És una teranyina (objecte generat a la capa Climbing)
         if (other.gameObject.layer == LayerMask.NameToLayer("Climbing"))
         {
-            websInsideCount++;
+            websInside.Add(other);
         }
     }
 
@@ -79,11 +88,10 @@ public class LeverDoorSystem : MonoBehaviour
             isPlayerInside = false;
         }
 
-        // Cas B: La teranyina marxa o desapareix
-        if (other.gameObject.layer == LayerMask.NameToLayer("Walkable"))
+        // Cas B: La teranyina marxa o desapareix (abans es comprovava la capa Walkable per error)
+        if (other.gameObject.layer == LayerMask.NameToLayer("Climbing"))
         {
-            websInsideCount--;
-            if (websInsideCount < 0) websInsideCount = 0; // Seguretat per evitar números negatius
+            websInside.Remove(other);
         }
     }
 }

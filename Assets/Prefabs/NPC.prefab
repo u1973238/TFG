@@ -336,8 +336,8 @@ MonoBehaviour:
   missionToGive: {fileID: 11400000, guid: c74c6057c33e3184fb0ebbfce14fd3cc, type: 2}
   visualPrompt: {fileID: 422136251417810340}
   liveDialog: {fileID: 854695401426298717}
-  interactionPrompt: Prem E per interactuar
-  dialegInicial: Hola aranya! Pots ajudar-me a recollir aquests objectes?
+  interactionPrompt: Prem E per parlar
+  dialegInicial: "Hola, aranya! Em pots ajudar a recollir aquests objectes?"
   dialegEnProgres: "Encara est\xE0s treballant en el meu enc\xE0rrec?"
   dialegCompletat: "Uau, moltes gr\xE0cies per salvar-me!"
 --- !u!1 &8373513181953869303
