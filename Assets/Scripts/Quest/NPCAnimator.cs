@@ -75,6 +75,15 @@ public class NPCAnimator : MonoBehaviour
         hopStartTime = Time.time;
     }
 
+    // Agafa la posició i el gir actuals com a punt de repòs (per exemple, després que l'NPC hagi caminat fins a un altre lloc)
+    public void RecaptureBase()
+    {
+        if (visual == null) return;
+        baseLocalPosition = visual.localPosition;
+        baseWorldRotation = visual.rotation;
+        currentYaw = 0f;
+    }
+
     void Update()
     {
         if (visual == null) return;

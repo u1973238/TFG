@@ -7,6 +7,8 @@ public class WebBridge : MonoBehaviour
     private LineRenderer[] lines;
     private Vector3[][] basePoints;
     private Vector3 origin;
+    private Vector3 end;
+    private float sag;
     private float growDuration;
     private float createdTime;
 
@@ -23,12 +25,18 @@ public class WebBridge : MonoBehaviour
 
     private bool needsRedraw = true;
 
-    public void Init(LineRenderer[] bridgeLines, Vector3[][] points, Vector3 growOrigin, float duration,
+    // Els dos extrems del pont (on s'han enganxat els fils)
+    public Vector3 StartPoint => origin;
+    public Vector3 EndPoint => end;
+
+    public void Init(LineRenderer[] bridgeLines, Vector3[][] points, Vector3 startPoint, Vector3 endPoint, float sagAmount, float duration,
                      bool isBouncy, float threshold, float bounceFactor, float maxSpeed)
     {
         lines = bridgeLines;
         basePoints = points;
-        origin = growOrigin;
+        origin = startPoint;
+        end = endPoint;
+        sag = sagAmount;
         growDuration = Mathf.Max(0.01f, duration);
         createdTime = Time.time;
 
@@ -78,6 +86,25 @@ public class WebBridge : MonoBehaviour
         }
 
         needsRedraw = progress < 1f || Mathf.Abs(wobble) > 0.001f;
+    }
+
+    // Punt del mig del pont, per on es camina: t = 0 a l'inici i t = 1 al final.
+    // Segueix la corba dels fils i el tremolor del moment, perquè qui hi camina es mogui amb la teranyina
+    public Vector3 PointAt(float t)
+    {
+        t = Mathf.Clamp01(t);
+        float hang = 4f * t * (1f - t) * sag;
+        float wobble = wobbleAmplitude * Mathf.Cos(wobbleTime * WobbleFrequency * 2f * Mathf.PI / 3f);
+        return Vector3.Lerp(origin, end, t) - transform.up * (hang + Mathf.Sin(t * Mathf.PI) * wobble);
+    }
+
+    // Fa tremolar el pont (per exemple, a cada pas d'un animal que el creua)
+    public void Wobble(float amount)
+    {
+        if (amount <= wobbleAmplitude) return;
+        wobbleAmplitude = amount;
+        wobbleTime = 0f;
+        needsRedraw = true;
     }
 
     private void OnCollisionEnter(Collision collision)

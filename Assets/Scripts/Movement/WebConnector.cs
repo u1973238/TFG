@@ -220,7 +220,7 @@ public class WebConnector : MonoBehaviour
 
         // El component WebBridge dibuixa els fils, els fa desplegar-se, tremolar i rebotar
         WebBridge webBridge = bridge.AddComponent<WebBridge>();
-        webBridge.Init(lines, linePoints, start, Mathf.Clamp(0.2f + distance * 0.01f, 0.2f, 0.6f),
+        webBridge.Init(lines, linePoints, start, end, sag, Mathf.Clamp(0.2f + distance * 0.01f, 0.2f, 0.6f),
                        bouncyBridges, bounceThreshold, bounciness, maxBounceSpeed);
         AudioManager.Play("bridge");
 

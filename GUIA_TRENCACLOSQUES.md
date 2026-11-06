@@ -163,8 +163,16 @@ Vola seguint els punts de la ruta (`Punt_1`…`Punt_4`). En pots afegir o treure
 
 ### Zona de rescat (`PlatformLinkTrigger`)
 
-És una caixa invisible al buit entre dues plataformes. Quan un pont la travessa, suma 1 a la missió i l'animal (*Rescued Animal*) camina fins a `PuntSegur`.
+És una caixa invisible al buit entre dues plataformes. Quan un pont la travessa, suma 1 a la missió i l'animal atrapat (*Rescued Animal*) **creua el pont**:
+1. fa un saltet d'alegria;
+2. camina fins a l'extrem del pont que té més a prop;
+3. el travessa per sobre dels fils, que tremolen a cada pas;
+4. baixa a l'altra banda.
 
+- **On s'atura:** després del pont va fins a *Safe Point* (`PuntSegur`), si n'hi ha; si no, s'atura uns 3 m més enllà.
+- **Si troba un NPC pel camí** (per exemple, el que t'ha demanat ajuda), s'hi atura al costat i el mira. La distància es tria a *Stop Near NPC Distance*; 0 vol dir que no s'atura.
+- **Com camina:** *Walk Speed*, *Hop Height* i *Step Length*. Si l'animal camina de costat o d'esquena, posa a *Facing Offset* l'angle que cal girar-lo.
+- **Mida de la caixa:** fes-la només tan gran com el tros de buit on s'ha de fer el pont. L'animal camina fins al pont, i si el pont és molt lluny haurà de caminar molt.
 - *Mission ID* és **un text**: ha de ser exactament l'identificador de la missió (`conectar_plataformas` per a «Salva l'animal atrapat»).
 - **Per a diversos animals**, posa una zona per animal i, a la missió, *Required Amount* igual al nombre de zones.
 
