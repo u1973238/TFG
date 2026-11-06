@@ -30,6 +30,10 @@ public class Fly : MonoBehaviour
     private AudioSource buzzSource;
     private float noiseSeed;
 
+    // Per a la fletxa de l'objectiu
+    public MissionData Mission => mission;
+    public bool IsCaught => caught;
+
     void Awake()
     {
         // Rigidbody cinemàtic + col·lider Trigger: així detecta els ponts de teranyina (que són col·liders estàtics)

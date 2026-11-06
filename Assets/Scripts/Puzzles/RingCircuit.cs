@@ -24,6 +24,10 @@ public class RingCircuit : MonoBehaviour
     private float groundedTime = 0f;
     private SpiderLocomotion player;
 
+    // Per a la fletxa de l'objectiu: el cèrcol que toca travessar
+    public MissionData Mission => mission;
+    public Transform NextRing => nextIndex < rings.Count && rings[nextIndex] != null ? rings[nextIndex].transform : null;
+
     void Start()
     {
         foreach (MissionCollectible ring in rings)

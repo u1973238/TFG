@@ -11,6 +11,8 @@ public class TimeTrialChallenge : MonoBehaviour
     private bool challengeCompleted = false;
     private int lastDisplayedTenths = -2; // Últimes dècimes mostrades; així només refresquem el text quan canvia
 
+    public string MissionID => timeTrialMissionID; // Per a la fletxa de l'objectiu (la meta)
+
     void Update()
     {
         if (timerActive && !challengeCompleted)

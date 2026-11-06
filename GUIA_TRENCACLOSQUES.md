@@ -238,6 +238,28 @@ El cicle complet és aquest:
 2. Resols el trencaclosques i surt «Objectiu complert».
 3. Tornes a l'NPC i surten «Missió lliurada» i la recompensa.
 
+### La fletxa de l'objectiu
+
+Durant el joc, una fletxa groga indica la cosa més propera que toca fer:
+1. lliurar una missió complerta (l'NPC que la va donar);
+2. l'objectiu d'una missió en curs;
+3. si no hi ha cap missió en curs, el següent NPC que té una missió per donar.
+
+Si l'objectiu es veu, hi surt un rombe a sobre amb la distància; si no, una fletxa a la vora de la pantalla. Es crea sola: no cal posar-la a l'escena.
+
+Per saber on és l'objectiu d'una missió, la fletxa busca les peces lligades a aquella missió:
+
+| Peça | On apunta |
+|---|---|
+| Objectes per recollir | L'objecte més proper que queda |
+| Circuit de cèrcols | El cèrcol que toca |
+| Mosques | La mosca més propera que encara vola |
+| Zona de rescat | L'animal atrapat (*Rescued Animal*) |
+| Porta o ascensor amb *Mission On Open* | La porta, mentre està tancada |
+| Cursa | La meta |
+
+Si una missió no té cap d'aquestes peces, la fletxa apunta a l'NPC que la va donar. Per tant, perquè la fletxa porti el jugador al lloc del trencaclosques, lliga'n alguna peça a la missió.
+
 ### Recompenses
 
 | *Reward* | Efecte | *Reward Value* |

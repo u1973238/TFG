@@ -23,6 +23,11 @@ public class PlatformLinkTrigger : MonoBehaviour
     private bool bridgeDetected = false;
     private WebBridge bridge; // El pont que l'ha rescatat: l'animal hi camina per sobre
 
+    // Per a la fletxa de l'objectiu
+    public string MissionID => missionID;
+    public bool IsRescued => isConnected;
+    public Transform RescuedAnimal => rescuedAnimal;
+
     void Update()
     {
         // Si ja hi ha un pont però la missió encara no estava activa, ho tornem a intentar fins que el gestor accepti el progrés

@@ -33,6 +33,7 @@ public class PuzzleMover : MonoBehaviour
     private bool missionDone = false;
 
     public bool IsOpen => isOpen;
+    public MissionData MissionOnOpen => missionOnOpen;
 
     void Start()
     {
