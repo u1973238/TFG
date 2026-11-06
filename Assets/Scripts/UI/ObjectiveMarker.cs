@@ -33,6 +33,7 @@ public class ObjectiveMarker : MonoBehaviour
 
     private Transform player;
     private bool hasTarget;
+    private NPCAnimator targetAnimator; // Si l'objectiu és un NPC amb el seu «!» o «?» a la vista (aquest ja fa de rombe)
     private Vector3 target;
     private string label = "";
     private float nextRefresh;
@@ -96,6 +97,9 @@ public class ObjectiveMarker : MonoBehaviour
             FindTarget();
         }
 
+        // L'indicador de l'NPC canvia de mida amb la distància: els textos el segueixen a cada fotograma
+        if (targetAnimator != null && targetAnimator.IsMarkerVisible) target = targetAnimator.MarkerTop;
+
         bool show = playing && hasTarget && Vector3.Distance(player.position, target) > HideDistance;
         group.alpha = Mathf.MoveTowards(group.alpha, show ? 1f : 0f, Time.unscaledDeltaTime * 4f);
         if (hasTarget && cam != null && group.alpha > 0f) Place(cam);
@@ -106,6 +110,7 @@ public class ObjectiveMarker : MonoBehaviour
     private void FindTarget()
     {
         hasTarget = false;
+        targetAnimator = null;
         label = "";
         if (MissionManager.Instance == null) return;
 
@@ -122,7 +127,7 @@ public class ObjectiveMarker : MonoBehaviour
         foreach (MissionNPC npc in npcs)
         {
             MissionData mission = npc.missionToGive;
-            if (mission != null && mission.IsReadyToDeliver) Consider(npc.transform.position + Vector3.up * NpcHeight, "Lliura: " + mission.title, ref best);
+            if (mission != null && mission.IsReadyToDeliver) ConsiderNpc(npc, "Lliura: " + mission.title, ref best);
         }
 
         // 2. Missions en curs: el seu objectiu més proper (o, si no se'n troba cap a l'escena, l'NPC que la va donar)
@@ -148,7 +153,7 @@ public class ObjectiveMarker : MonoBehaviour
 
             if (found) continue;
             foreach (MissionNPC npc in npcs)
-                if (npc.missionToGive == mission) Consider(npc.transform.position + Vector3.up * NpcHeight, mission.title, ref best);
+                if (npc.missionToGive == mission) ConsiderNpc(npc, mission.title, ref best);
         }
         if (hasTarget) return;
 
@@ -157,12 +162,12 @@ public class ObjectiveMarker : MonoBehaviour
         {
             MissionData mission = npc.missionToGive;
             if (mission != null && !mission.isActive && !mission.isCompleted && MissionManager.Instance.CanAccept(mission))
-                Consider(npc.transform.position + Vector3.up * NpcHeight, "Nova missió", ref best);
+                ConsiderNpc(npc, "Nova missió", ref best);
         }
     }
 
     // Es queda el punt si és el més proper fins ara. Retorna cert sempre: vol dir que la missió té un objectiu a l'escena
-    private bool Consider(Vector3 point, string text, ref float best)
+    private bool Consider(Vector3 point, string text, ref float best, NPCAnimator animator = null)
     {
         float distance = Vector3.Distance(player.position, point);
         if (distance < best)
@@ -171,8 +176,17 @@ public class ObjectiveMarker : MonoBehaviour
             target = point;
             label = text;
             hasTarget = true;
+            targetAnimator = animator;
         }
         return true;
+    }
+
+    // Un NPC: si té el seu indicador a la vista, el punt és just a sobre (així la fletxa no el tapa)
+    private bool ConsiderNpc(MissionNPC npc, string text, ref float best)
+    {
+        NPCAnimator animator = npc.GetComponent<NPCAnimator>();
+        if (animator != null && animator.IsMarkerVisible) return Consider(animator.MarkerTop, text, ref best, animator);
+        return Consider(npc.transform.position + Vector3.up * NpcHeight, text, ref best);
     }
 
     // --- On es dibuixa ---
@@ -216,15 +230,18 @@ public class ObjectiveMarker : MonoBehaviour
         RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRect, point, uiCamera, out Vector2 local);
         marker.anchoredPosition = local;
 
-        diamond.gameObject.SetActive(onScreen);
+        // Sobre un NPC amb el seu «!» o «?», no cal el rombe: els textos van a sobre de l'indicador
+        bool aboveOwnMarker = onScreen && targetAnimator != null;
+        diamond.gameObject.SetActive(onScreen && !aboveOwnMarker);
         arrow.gameObject.SetActive(!onScreen);
         diamond.localScale = Vector3.one * (1f + Mathf.Sin(Time.unscaledTime * 4f) * 0.1f);
 
-        // La distància va a sota del rombe, o cap a dins de la pantalla des de la fletxa; el nom de la missió, només si l'objectiu es veu
-        distanceText.rectTransform.anchoredPosition = onScreen ? new Vector2(0f, -34f) : -direction * 54f;
+        // La distància va a sota del rombe (o a sobre de l'indicador), o cap a dins de la pantalla des de la fletxa; el nom de la missió, només si l'objectiu es veu
+        Vector2 distancePosition = aboveOwnMarker ? new Vector2(0f, 18f) : new Vector2(0f, -34f);
+        distanceText.rectTransform.anchoredPosition = onScreen ? distancePosition : -direction * 54f;
         distanceText.text = Mathf.RoundToInt(Vector3.Distance(player.position, target)) + " m";
         labelText.gameObject.SetActive(onScreen && label != "");
-        labelText.rectTransform.anchoredPosition = new Vector2(0f, -62f);
+        labelText.rectTransform.anchoredPosition = new Vector2(0f, aboveOwnMarker ? 46f : -62f);
         labelText.text = label;
     }
 

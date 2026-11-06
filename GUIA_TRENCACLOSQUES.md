@@ -245,7 +245,13 @@ Durant el joc, una fletxa groga indica la cosa més propera que toca fer:
 2. l'objectiu d'una missió en curs;
 3. si no hi ha cap missió en curs, el següent NPC que té una missió per donar.
 
-Si l'objectiu es veu, hi surt un rombe a sobre amb la distància; si no, una fletxa a la vora de la pantalla. Es crea sola: no cal posar-la a l'escena.
+Si l'objectiu es veu, hi surt un rombe a sobre amb la distància; si no, una fletxa a la vora de la pantalla. Sobre un NPC no hi surt el rombe: el seu «!» o «?» ja fa aquesta feina, i la distància i el nom de la missió van just a sobre. Es crea sola: no cal posar-la a l'escena.
+
+L'indicador dels NPCs («!», «...» o «?») el fa el component *NPC Animator*, que s'afegeix sol. Té dues opcions:
+- *Marker Size*: la mida de prop (per defecte 2, el doble de l'original).
+- *Marker Keep Size Distance*: a partir d'aquesta distància de la càmera (per defecte 12 m), l'indicador ja no es veu més petit, perquè es pugui trobar de lluny. Amb 0, es fa petit amb la distància com qualsevol objecte.
+
+Per provar valors, durant el joc selecciona un NPC i canvia'ls a l'inspector: es veu al moment. Per canviar-los a tots els NPCs, canvia el número a `NPCAnimator.cs`. Per canviar-los només a un, afegeix-li tu el component *NPC Animator* a l'escena.
 
 Per saber on és l'objectiu d'una missió, la fletxa busca les peces lligades a aquella missió:
 
