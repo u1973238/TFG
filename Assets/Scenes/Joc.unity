@@ -12318,6 +12318,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1574284184}
   - {fileID: 2056710485}
   - {fileID: 601914710}
   - {fileID: 1796197152}
@@ -15368,6 +15369,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0a877a5ce7371fe49afae4efcddc134a, type: 3}
+--- !u!4 &1574284184 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
+  m_PrefabInstance: {fileID: 2017630045}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1581016947
 GameObject:
   m_ObjectHideFlags: 0
@@ -17293,10 +17299,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlatformLinkTrigger
   missionID: conectar_plataformas
-  rescuedAnimal: {fileID: 0}
+  rescuedAnimal: {fileID: 1574284184}
   safePoint: {fileID: 0}
   walkSpeed: 2.5
   hopHeight: 0.3
+  stepLength: 0.6
+  facingOffset: 0
+  stopNearNPCDistance: 3
 --- !u!54 &1796197158
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -18060,11 +18069,11 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 1264919010}
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
       propertyPath: m_LocalScale.x
-      value: 22.217999
+      value: 22.218
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
       propertyPath: m_LocalScale.y
@@ -18072,19 +18081,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
       propertyPath: m_LocalScale.z
-      value: 22.217999
+      value: 22.218
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -76.9
+      value: 17.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 31.25
+      value: 58.65
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -26.03
+      value: -26.93
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 26f871c6b88775d4eaaff7a2833176bf, type: 3}
       propertyPath: m_LocalRotation.w
@@ -19119,5 +19128,4 @@ SceneRoots:
   - {fileID: 1264919010}
   - {fileID: 1353111079}
   - {fileID: 2143736308}
-  - {fileID: 2017630045}
   - {fileID: 1924587518}
