@@ -51,9 +51,23 @@ public class MissionCollectible : MonoBehaviour
                 }
                 else
                 {
-                    //Debug.LogWarning("No pots recollir aquest objecte encara. Parla primer amb l'animal!");
+                    ExplainWhyNot();
                 }
             }
+        }
+    }
+
+    // Si no es pot recollir, diem per què (abans no passava res i semblava que l'objecte no funcionava)
+    private void ExplainWhyNot()
+    {
+        MissionData mission = MissionManager.Instance.allMissions.Find(m => m != null && m.missionID == targetMissionID);
+        if (mission == null)
+        {
+            Debug.LogWarning($"[MissionCollectible] {name}: cap missió de «All Missions» té l'ID «{targetMissionID}». Revisa «Target Mission ID».", this);
+        }
+        else if (!mission.isActive && !mission.isCompleted)
+        {
+            MissionManager.Instance.ShowNotification("Encara no pots agafar-ho: primer parla amb l'animal que necessita ajuda.");
         }
     }
 

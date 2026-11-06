@@ -14,10 +14,16 @@ public class LeverDoorSystem : MonoBehaviour, IPuzzleSwitch
     [SerializeField] private Vector3 doorOpenOffset = new Vector3(0, -5f, 0);
     [SerializeField] private float leverTargetRotation = 45f;
 
+    [Header("Comportament")]
+    // Un cop activada (per l'aranya o per un pont), la palanca es queda baixada i la porta oberta.
+    // Desmarca-ho perquè només aguanti mentre l'aranya hi és al costat o un pont la travessa
+    [SerializeField] private bool stayActivated = true;
+
     // Variables internes per controlar qui està activant la palanca
     private bool isPlayerInside = false;
     private readonly HashSet<Collider> websInside = new HashSet<Collider>();
     private bool isDoorOpen = false;
+    private bool latched = false;
 
     private Vector3 doorInitialPosition;
     private Quaternion leverInitialRotation;
@@ -37,7 +43,8 @@ public class LeverDoorSystem : MonoBehaviour, IPuzzleSwitch
         websInside.RemoveWhere(web => web == null || !web.enabled || !web.gameObject.activeInHierarchy);
 
         // CONDICIÓ D'OBERTURA: La palanca s'activa si l'aranya està a dins O si hi ha alguna teranyina tocant-la
-        bool shouldOpen = isPlayerInside || websInside.Count > 0;
+        // (o si ja s'havia activat abans i es queda baixada)
+        bool shouldOpen = latched || isPlayerInside || websInside.Count > 0;
 
         if (shouldOpen)
         {
@@ -48,6 +55,7 @@ public class LeverDoorSystem : MonoBehaviour, IPuzzleSwitch
             if (!isDoorOpen)
             {
                 isDoorOpen = true;
+                if (stayActivated) latched = true;
                 AudioManager.Play("door");
                 if (MissionManager.Instance != null)
                 {

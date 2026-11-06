@@ -18,14 +18,15 @@ public class PuzzleMover : MonoBehaviour
     [SerializeField] private Transform target; // Si es deixa buit, es mou aquest mateix objecte
     [SerializeField] private Vector3 openOffset = new Vector3(0f, -5f, 0f); // Desplaçament en coordenades del món
     [SerializeField] private Vector3 openRotation = Vector3.zero; // Gir extra (graus) quan està obert, per a ponts llevadissos
-    [SerializeField] private float openSpeed = 2f;
-    [SerializeField] private float closeSpeed = 1.5f;
+    [SerializeField] private float openDuration = 1.5f; // Segons que tarda a obrir-se del tot (en un ascensor, millor 3 o 4 perquè l'aranya no surti disparada)
+    [SerializeField] private float closeDuration = 2f; // Segons que tarda a tornar a tancar-se
 
     [Header("Missió (opcional)")]
     [SerializeField] private MissionData missionOnOpen; // Suma 1 a aquesta missió la primera vegada que s'obre
 
     private Vector3 closedPosition;
     private Quaternion closedRotation;
+    private Rigidbody body;
     private float openAmount = 0f; // 0 = tancat, 1 = obert
     private bool isOpen = false;
     private bool latched = false;
@@ -38,6 +39,17 @@ public class PuzzleMover : MonoBehaviour
         if (target == null) target = transform;
         closedPosition = target.position;
         closedRotation = target.rotation;
+
+        // L'objecte es mou amb un Rigidbody cinemàtic: així la física sap que es mou i porta l'aranya o les roques que hi ha a sobre.
+        // Si es mogués canviant només la posició, la física els empenyeria de cop (i podrien sortir disparats o travessar-lo)
+        body = target.GetComponent<Rigidbody>();
+        if (body == null)
+        {
+            body = target.gameObject.AddComponent<Rigidbody>();
+            body.isKinematic = true;
+            body.useGravity = false;
+        }
+        if (body.isKinematic) body.interpolation = RigidbodyInterpolation.Interpolate;
 
         foreach (MonoBehaviour candidate in switches)
         {
@@ -67,14 +79,27 @@ public class PuzzleMover : MonoBehaviour
         {
             missionDone = MissionManager.Instance.ProgressMission(missionOnOpen, 1);
         }
+    }
 
-        // Moviment suau cap a la posició oberta o tancada
-        float speed = isOpen ? openSpeed : closeSpeed;
-        openAmount = Mathf.MoveTowards(openAmount, isOpen ? 1f : 0f, speed * Time.deltaTime);
+    void FixedUpdate()
+    {
+        // Moviment suau cap a la posició oberta o tancada (a FixedUpdate, al mateix ritme que la física)
+        float duration = isOpen ? openDuration : closeDuration;
+        openAmount = Mathf.MoveTowards(openAmount, isOpen ? 1f : 0f, Time.fixedDeltaTime / Mathf.Max(0.01f, duration));
         float eased = Mathf.SmoothStep(0f, 1f, openAmount);
 
-        target.position = closedPosition + openOffset * eased;
-        target.rotation = Quaternion.Euler(openRotation * eased) * closedRotation;
+        Vector3 position = closedPosition + openOffset * eased;
+        Quaternion rotation = Quaternion.Euler(openRotation * eased) * closedRotation;
+
+        if (body != null && body.isKinematic)
+        {
+            body.MovePosition(position);
+            body.MoveRotation(rotation);
+        }
+        else
+        {
+            target.SetPositionAndRotation(position, rotation);
+        }
     }
 
     private bool ConditionMet()

@@ -196,17 +196,18 @@ public class SpiderSwingingSimple : MonoBehaviour
     }
 
     // Busca on es pot enganxar el fil: primer exactament al centre de la mira i, si no hi ha res, amb una esfera
-    // (només punts per sobre de l'aranya, perquè l'ajuda no enganxi el fil al terra). També la fa servir el punt de mira
+    // (només punts per sobre de l'aranya, perquè l'ajuda no enganxi el fil al terra). També la fa servir el punt de mira.
+    // El fil només s'enganxa a superfícies sòlides: s'ignoren els Triggers (zones invisibles com la d'una palanca o d'un NPC)
     public static bool FindSwingPoint(Transform camera, float maxDistance, LayerMask layers, float assistRadius, Vector3 playerPosition, out RaycastHit hit)
     {
         Ray ray = new Ray(camera.position, camera.forward);
-        if (Physics.Raycast(ray, out hit, maxDistance, layers)) return true;
+        if (Physics.Raycast(ray, out hit, maxDistance, layers, QueryTriggerInteraction.Ignore)) return true;
         if (assistRadius <= 0f) return false;
 
         // L'esfera comença a l'altura de l'aranya (no darrere, on és la càmera) perquè no toqui res entre la càmera i l'aranya
         float skip = Mathf.Max(0f, Vector3.Dot(playerPosition - camera.position, camera.forward));
         Ray assistRay = new Ray(camera.position + camera.forward * skip, camera.forward);
-        if (Physics.SphereCast(assistRay, assistRadius, out hit, maxDistance - skip, layers) && hit.point.y > playerPosition.y + 1f)
+        if (Physics.SphereCast(assistRay, assistRadius, out hit, maxDistance - skip, layers, QueryTriggerInteraction.Ignore) && hit.point.y > playerPosition.y + 1f)
         {
             return true;
         }

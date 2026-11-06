@@ -10,6 +10,7 @@ public class MainMenu : MonoBehaviour
     [Header("UI Component")]
     [SerializeField] private GameObject mainMenuPanel; // El panell del menú d'inici
     [SerializeField] private GameObject controlsPanel; // El panell informatiu amb els controls
+    [SerializeField] private Canvas hudCanvas; // El HUD del joc (missions i punt de mira): no es veu mentre hi ha el menú d'inici
 
     void Start()
     {
@@ -17,6 +18,11 @@ public class MainMenu : MonoBehaviour
         if (mainMenuPanel != null)
         {
             mainMenuPanel.SetActive(true);
+        }
+
+        if (hudCanvas != null)
+        {
+            hudCanvas.enabled = false;
         }
 
         if (controlsPanel != null)
@@ -42,6 +48,11 @@ public class MainMenu : MonoBehaviour
         if (controlsPanel != null)
         {
             controlsPanel.SetActive(false);
+        }
+
+        if (hudCanvas != null)
+        {
+            hudCanvas.enabled = true;
         }
 
         Time.timeScale = 1f; // Reactivem el temps del joc

@@ -9,22 +9,27 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 // Eina de l'editor que construeix tots els menús del joc amb el mateix estil:
-// menú principal, pausa, controls, opcions i pantalla de victòria, ja connectats als scripts.
+// menú principal, pausa, controls, opcions (amb pestanyes) i pantalla de victòria, ja connectats als scripts.
 // Es fa servir des del menú de Unity: Tools > TFG > Construir menús (es pot tornar a executar per refer-los)
 public static class MenuBuilder
 {
     private const string GameTitle = "L'ARANYA"; // Canvia-ho pel nom del joc
     private const string GameSubtitle = "Un joc de plataformes amb teranyines";
     private const string RootName = "UI_Menus";
+    private const string GameScenePath = "Assets/Scenes/Joc.unity";
 
     // Paleta: el vermell és el mateix de l'aranya i de la marieta
     private static readonly Color DimColor = new Color(0f, 0f, 0f, 0.55f);
     private static readonly Color PanelColor = new Color(0.07f, 0.09f, 0.11f, 0.94f);
     private static readonly Color AccentColor = new Color32(0xF4, 0x43, 0x36, 0xFF);
     private static readonly Color ButtonColor = new Color(0.17f, 0.2f, 0.23f, 1f);
+    private static readonly Color HoverColor = new Color(0.3f, 0.34f, 0.39f, 1f); // Pestanyes i caselles quan el ratolí hi passa per sobre
     private static readonly Color TrackColor = new Color(0.25f, 0.28f, 0.32f, 1f);
     private static readonly Color TextColor = new Color(0.96f, 0.96f, 0.96f, 1f);
     private static readonly Color SubtleTextColor = new Color(0.72f, 0.76f, 0.8f, 1f);
+    private static readonly Color InactiveTabTextColor = new Color(0.55f, 0.6f, 0.65f, 1f);
+
+    private const float RowLabelWidth = 440f; // Amplada dels noms de les opcions: els controls queden alineats a la mateixa columna
 
     private static Sprite roundedSprite;
     private static Sprite trackSprite;
@@ -33,9 +38,7 @@ public static class MenuBuilder
     [MenuItem("Tools/TFG/Construir menús")]
     public static void Build()
     {
-        PauseMenu pauseMenu = Object.FindAnyObjectByType<PauseMenu>(FindObjectsInactive.Include);
-        MenuVictoria victoria = Object.FindAnyObjectByType<MenuVictoria>(FindObjectsInactive.Include);
-        if (pauseMenu == null || victoria == null)
+        if (!FindMenuScripts(out PauseMenu pauseMenu, out MenuVictoria victoria))
         {
             EditorUtility.DisplayDialog("Construir menús", "No he trobat PauseMenu o MenuVictoria a l'escena oberta. Obre Joc.unity i torna-ho a provar.", "D'acord");
             return;
@@ -47,6 +50,37 @@ public static class MenuBuilder
             "Ho pots desfer amb Ctrl+Z.", "Construir", "Cancel·lar");
         if (!accept) return;
 
+        BuildMenus(pauseMenu, victoria);
+        Selection.activeGameObject = GameObject.Find(RootName);
+
+        EditorUtility.DisplayDialog("Construir menús", "Menús creats. Desa l'escena (Ctrl+S) i prova-ho amb Play.", "D'acord");
+    }
+
+    // La mateixa eina sense finestres, per fer-la servir des de la línia d'ordres amb Unity tancat:
+    // Unity.exe -batchmode -quit -projectPath <carpeta del projecte> -executeMethod MenuBuilder.BuildFromCommandLine
+    // Obre l'escena del joc, construeix els menús i desa l'escena
+    public static void BuildFromCommandLine()
+    {
+        EditorSceneManager.OpenScene(GameScenePath);
+        if (!FindMenuScripts(out PauseMenu pauseMenu, out MenuVictoria victoria))
+        {
+            throw new System.Exception("[Construir menús] No he trobat PauseMenu o MenuVictoria a " + GameScenePath);
+        }
+
+        BuildMenus(pauseMenu, victoria);
+        EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+        Debug.Log("[Construir menús] Menús creats i escena desada.");
+    }
+
+    private static bool FindMenuScripts(out PauseMenu pauseMenu, out MenuVictoria victoria)
+    {
+        pauseMenu = Object.FindAnyObjectByType<PauseMenu>(FindObjectsInactive.Include);
+        victoria = Object.FindAnyObjectByType<MenuVictoria>(FindObjectsInactive.Include);
+        return pauseMenu != null && victoria != null;
+    }
+
+    private static void BuildMenus(PauseMenu pauseMenu, MenuVictoria victoria)
+    {
         roundedSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd");
         trackSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd");
         knobSprite = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd");
@@ -116,20 +150,43 @@ public static class MenuBuilder
         controlsText.lineSpacing = 12f;
         Button controlsBackButton = CreateButton(controlsCard, "Tornar");
 
-        // --- Opcions ---
-        GameObject optionsScreen = CreateScreen(root.transform, "PantallaOpcions", 950, out Transform optionsCard);
+        // --- Opcions: una pestanya per a cada grup d'opcions ---
+        GameObject optionsScreen = CreateScreen(root.transform, "PantallaOpcions", 1060, out Transform optionsCard);
         CreateText(optionsCard, "Titol", "OPCIONS", 64, AccentColor, FontStyles.Bold, 80);
-        Slider masterSlider = CreateSliderRow(optionsCard, "Volum general", 0f, 1f, 1f);
-        Slider musicSlider = CreateSliderRow(optionsCard, "Música", 0f, 1f, 0.5f);
-        Slider effectsSlider = CreateSliderRow(optionsCard, "Efectes de so", 0f, 1f, 0.8f);
-        Slider mouseSlider = CreateSliderRow(optionsCard, "Sensibilitat del ratolí", 0.25f, 3f, 1f);
-        Slider gamepadSlider = CreateSliderRow(optionsCard, "Sensibilitat del comandament", 0.25f, 3f, 1f);
-        CreateSpacer(optionsCard, 10);
+
+        Transform tabBar = CreateTabBar(optionsCard);
+        string[] tabNames = { "So", "Càmera", "Pantalla" };
+        Button[] tabButtons = new Button[tabNames.Length];
+        GameObject[] tabIndicators = new GameObject[tabNames.Length];
+        TextMeshProUGUI[] tabLabels = new TextMeshProUGUI[tabNames.Length];
+        for (int i = 0; i < tabNames.Length; i++)
+        {
+            tabButtons[i] = CreateTabButton(tabBar, tabNames[i], out tabIndicators[i], out tabLabels[i]);
+        }
+
+        Transform soundPage = CreatePage(optionsCard, "Pagina_So");
+        Slider masterSlider = CreateSliderRow(soundPage, "Volum general", 0f, 1f, 1f, true);
+        Slider musicSlider = CreateSliderRow(soundPage, "Música", 0f, 1f, 0.5f, true);
+        Slider effectsSlider = CreateSliderRow(soundPage, "Efectes de so", 0f, 1f, 0.8f, true);
+
+        Transform cameraPage = CreatePage(optionsCard, "Pagina_Camera");
+        Slider mouseSlider = CreateSliderRow(cameraPage, "Sensibilitat del ratolí", 0.25f, 3f, 1f, false);
+        Slider gamepadSlider = CreateSliderRow(cameraPage, "Sensibilitat del comandament", 0.25f, 3f, 1f, false);
+        Toggle invertYToggle = CreateToggleRow(cameraPage, "Invertir l'eix vertical", false);
+
+        Transform screenPage = CreatePage(optionsCard, "Pagina_Pantalla");
+        Toggle fullscreenToggle = CreateToggleRow(screenPage, "Pantalla completa", true);
+        TextMeshProUGUI qualityText = CreateSelectorRow(screenPage, "Qualitat gràfica", "Alta", out Button qualityPreviousButton, out Button qualityNextButton);
+        Toggle vSyncToggle = CreateToggleRow(screenPage, "Sincronització vertical", true);
+
+        GameObject[] tabPages = { soundPage.gameObject, cameraPage.gameObject, screenPage.gameObject };
+
+        CreateSpacer(optionsCard, 6);
         Button optionsBackButton = CreateButton(optionsCard, "Tornar");
 
         // --- Victòria ---
-        GameObject victoryScreen = CreateScreen(root.transform, "PantallaVictoria", 820, out Transform victoryCard);
-        CreateText(victoryCard, "Titol", "HAS AJUDAT TOTS ELS ANIMALS!", 52, AccentColor, FontStyles.Bold, 80);
+        GameObject victoryScreen = CreateScreen(root.transform, "PantallaVictoria", 1000, out Transform victoryCard);
+        CreateText(victoryCard, "Titol", "HAS AJUDAT TOTS ELS ANIMALS!", 46, AccentColor, FontStyles.Bold, 80);
         CreateText(victoryCard, "Subtitol", "Has completat totes les missions de l'illa.", 30, SubtleTextColor, FontStyles.Normal, 44);
         TextMeshProUGUI timeText = CreateText(victoryCard, "Temps", "Temps: 00:00", 38, TextColor, FontStyles.Bold, 60);
         CreateSpacer(victoryCard, 10);
@@ -139,6 +196,7 @@ public static class MenuBuilder
         // --- Scripts ---
         MainMenu mainMenu = Undo.AddComponent<MainMenu>(root);
         SetObject(mainMenu, "mainMenuPanel", mainScreen);
+        SetObject(mainMenu, "hudCanvas", FindHudCanvas(canvas));
 
         OverlayPanel controlsOverlay = Undo.AddComponent<OverlayPanel>(controlsScreen);
         OverlayPanel optionsOverlay = Undo.AddComponent<OverlayPanel>(optionsScreen);
@@ -149,6 +207,11 @@ public static class MenuBuilder
         SetObject(optionsMenu, "effectsSlider", effectsSlider);
         SetObject(optionsMenu, "mouseSlider", mouseSlider);
         SetObject(optionsMenu, "gamepadSlider", gamepadSlider);
+        SetObject(optionsMenu, "invertYToggle", invertYToggle);
+        SetObject(optionsMenu, "fullscreenToggle", fullscreenToggle);
+        SetObject(optionsMenu, "qualityText", qualityText);
+        SetObject(optionsMenu, "vSyncToggle", vSyncToggle);
+        SetTabs(optionsMenu, tabButtons, tabPages, tabIndicators, tabLabels);
 
         SetObject(pauseMenu, "pausePanel", pauseScreen);
         SetObject(victoria, "panellVictoria", victoryScreen);
@@ -168,6 +231,13 @@ public static class MenuBuilder
         UnityEventTools.AddPersistentListener(controlsBackButton.onClick, controlsOverlay.Close);
         UnityEventTools.AddPersistentListener(optionsBackButton.onClick, optionsOverlay.Close);
 
+        for (int i = 0; i < tabButtons.Length; i++)
+        {
+            UnityEventTools.AddIntPersistentListener(tabButtons[i].onClick, optionsMenu.ShowTab, i);
+        }
+        UnityEventTools.AddPersistentListener(qualityPreviousButton.onClick, optionsMenu.PreviousQuality);
+        UnityEventTools.AddPersistentListener(qualityNextButton.onClick, optionsMenu.NextQuality);
+
         UnityEventTools.AddPersistentListener(victoryMenuButton.onClick, victoria.ReiniciarJoc);
         UnityEventTools.AddPersistentListener(victoryQuitButton.onClick, victoria.SortirDelJoc);
 
@@ -178,11 +248,32 @@ public static class MenuBuilder
         optionsScreen.SetActive(false);
         victoryScreen.SetActive(false);
 
+        // A Opcions comença triada la primera pestanya
+        for (int i = 0; i < tabPages.Length; i++)
+        {
+            tabPages[i].SetActive(i == 0);
+            tabIndicators[i].SetActive(i == 0);
+            tabLabels[i].color = i == 0 ? TextColor : InactiveTabTextColor;
+        }
+
         Undo.CollapseUndoOperations(undoGroup);
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-        Selection.activeGameObject = root;
+    }
 
-        EditorUtility.DisplayDialog("Construir menús", "Menús creats. Desa l'escena (Ctrl+S) i prova-ho amb Play.", "D'acord");
+    // El HUD del joc és el llenç del text de les missions. El menú d'inici l'amaga mentre es veu
+    private static Canvas FindHudCanvas(Canvas menuCanvas)
+    {
+        MissionManager missionManager = Object.FindAnyObjectByType<MissionManager>(FindObjectsInactive.Include);
+        TextMeshProUGUI questText = missionManager != null ? GetObject(missionManager, "questTrackerText") as TextMeshProUGUI : null;
+        Canvas hud = questText != null ? questText.GetComponentInParent<Canvas>(true) : null;
+        if (hud != null) hud = hud.rootCanvas;
+
+        if (hud == null || hud == menuCanvas)
+        {
+            Debug.LogWarning("[Construir menús] No he trobat el llenç del HUD: el menú d'inici no l'amagarà.");
+            return null;
+        }
+        return hud;
     }
 
     private static string ControlsTable()
@@ -327,8 +418,70 @@ public static class MenuBuilder
         return button;
     }
 
-    // Fila d'opcions: nom a l'esquerra i control lliscant a la dreta
-    private static Slider CreateSliderRow(Transform parent, string label, float min, float max, float value)
+    // --- Pestanyes ---
+
+    private static Transform CreateTabBar(Transform parent)
+    {
+        GameObject bar = CreateUIObject("Pestanyes", parent);
+        HorizontalLayoutGroup layout = bar.AddComponent<HorizontalLayoutGroup>();
+        layout.spacing = 12f;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = false;
+        LayoutElement element = bar.AddComponent<LayoutElement>();
+        element.preferredHeight = 60f;
+        return bar.transform;
+    }
+
+    // Pestanya: un botó amb una ratlla vermella a sota que indica quina està triada
+    private static Button CreateTabButton(Transform parent, string label, out GameObject indicator, out TextMeshProUGUI text)
+    {
+        Button button = CreateButton(parent, label);
+        button.gameObject.name = "Pestanya_" + label;
+        LayoutElement element = button.GetComponent<LayoutElement>();
+        element.preferredHeight = 60f;
+        element.flexibleWidth = 1f;
+
+        ColorBlock colors = button.colors;
+        colors.highlightedColor = HoverColor;
+        colors.selectedColor = HoverColor;
+        button.colors = colors;
+
+        text = button.GetComponentInChildren<TextMeshProUGUI>();
+        text.fontSize = 30;
+
+        indicator = CreateUIObject("Indicador", button.transform);
+        RectTransform rect = indicator.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 0f);
+        rect.anchorMax = new Vector2(1f, 0f);
+        rect.pivot = new Vector2(0.5f, 0f);
+        rect.offsetMin = new Vector2(20f, 6f);
+        rect.offsetMax = new Vector2(-20f, 12f);
+        Image image = indicator.AddComponent<Image>();
+        image.color = AccentColor;
+        image.raycastTarget = false;
+
+        return button;
+    }
+
+    // Contingut d'una pestanya: les files d'opcions una sota l'altra
+    private static Transform CreatePage(Transform parent, string objectName)
+    {
+        GameObject page = CreateUIObject(objectName, parent);
+        VerticalLayoutGroup layout = page.AddComponent<VerticalLayoutGroup>();
+        layout.padding = new RectOffset(0, 0, 8, 0);
+        layout.spacing = 16f;
+        layout.childControlWidth = true;
+        layout.childControlHeight = true;
+        layout.childForceExpandWidth = true;
+        layout.childForceExpandHeight = false;
+        return page.transform;
+    }
+
+    // --- Files d'opcions: nom a l'esquerra i control a la dreta ---
+
+    private static Transform CreateRow(Transform parent, string label)
     {
         GameObject row = CreateUIObject("Fila_" + label, parent);
         HorizontalLayoutGroup rowLayout = row.AddComponent<HorizontalLayoutGroup>();
@@ -343,10 +496,87 @@ public static class MenuBuilder
 
         TextMeshProUGUI text = CreateText(row.transform, "Nom", label, 28, TextColor, FontStyles.Normal, 56);
         text.alignment = TextAlignmentOptions.MidlineLeft;
+        text.textWrappingMode = TextWrappingModes.NoWrap;
         LayoutElement textElement = text.GetComponent<LayoutElement>();
-        textElement.preferredWidth = 400f;
+        textElement.preferredWidth = RowLabelWidth;
 
-        GameObject sliderObject = CreateUIObject("Control", row.transform);
+        return row.transform;
+    }
+
+    // Fila amb una casella per activar o desactivar una opció
+    private static Toggle CreateToggleRow(Transform parent, string label, bool value)
+    {
+        Transform row = CreateRow(parent, label);
+
+        GameObject box = CreateUIObject("Control", row);
+        LayoutElement boxElement = box.AddComponent<LayoutElement>();
+        boxElement.preferredWidth = 44f;
+        boxElement.preferredHeight = 44f;
+        Image boxImage = box.AddComponent<Image>();
+        boxImage.sprite = roundedSprite;
+        boxImage.type = Image.Type.Sliced;
+        boxImage.color = Color.white;
+
+        GameObject mark = CreateUIObject("Marca", box.transform);
+        RectTransform markRect = mark.GetComponent<RectTransform>();
+        Stretch(markRect);
+        markRect.offsetMin = new Vector2(9f, 9f);
+        markRect.offsetMax = new Vector2(-9f, -9f);
+        // Quan l'opció està activada, la casella s'omple amb un quadrat vermell
+        Image markImage = mark.AddComponent<Image>();
+        markImage.sprite = roundedSprite;
+        markImage.type = Image.Type.Sliced;
+        markImage.color = AccentColor;
+        markImage.raycastTarget = false;
+
+        Toggle toggle = box.AddComponent<Toggle>();
+        toggle.targetGraphic = boxImage;
+        toggle.graphic = markImage;
+        toggle.isOn = value;
+        ColorBlock colors = toggle.colors;
+        colors.normalColor = TrackColor;
+        colors.highlightedColor = HoverColor;
+        colors.selectedColor = HoverColor;
+        colors.pressedColor = ButtonColor;
+        colors.fadeDuration = 0.08f;
+        toggle.colors = colors;
+
+        // Espai buit a la dreta perquè la casella quedi a la mateixa columna que els controls lliscants
+        GameObject filler = CreateUIObject("Espai", row);
+        filler.AddComponent<LayoutElement>().flexibleWidth = 1f;
+
+        return toggle;
+    }
+
+    // Fila amb un valor i dos botons («<» i «>») per canviar-lo
+    private static TextMeshProUGUI CreateSelectorRow(Transform parent, string label, string value, out Button previous, out Button next)
+    {
+        Transform row = CreateRow(parent, label);
+
+        previous = CreateArrowButton(row, "<", "Boto_Anterior");
+        TextMeshProUGUI valueText = CreateText(row, "Valor", value, 28, TextColor, FontStyles.Bold, 56);
+        valueText.GetComponent<LayoutElement>().flexibleWidth = 1f;
+        next = CreateArrowButton(row, ">", "Boto_Seguent");
+
+        return valueText;
+    }
+
+    private static Button CreateArrowButton(Transform parent, string arrow, string objectName)
+    {
+        Button button = CreateButton(parent, arrow);
+        button.gameObject.name = objectName;
+        LayoutElement element = button.GetComponent<LayoutElement>();
+        element.preferredWidth = 64f;
+        element.preferredHeight = 48f;
+        return button;
+    }
+
+    // Fila amb un control lliscant i el seu valor al costat
+    private static Slider CreateSliderRow(Transform parent, string label, float min, float max, float value, bool asPercentage)
+    {
+        Transform row = CreateRow(parent, label);
+
+        GameObject sliderObject = CreateUIObject("Control", row);
         LayoutElement sliderElement = sliderObject.AddComponent<LayoutElement>();
         sliderElement.flexibleWidth = 1f;
         sliderElement.preferredHeight = 30f;
@@ -402,6 +632,17 @@ public static class MenuBuilder
         colors.selectedColor = new Color(1f, 0.8f, 0.78f, 1f);
         slider.colors = colors;
 
+        TextMeshProUGUI valueText = CreateText(row, "Valor", "", 26, SubtleTextColor, FontStyles.Normal, 56);
+        valueText.alignment = TextAlignmentOptions.MidlineRight;
+        valueText.textWrappingMode = TextWrappingModes.NoWrap;
+        valueText.GetComponent<LayoutElement>().preferredWidth = 100f;
+
+        SliderValueText display = valueText.gameObject.AddComponent<SliderValueText>();
+        SetObject(display, "slider", slider);
+        SetObject(display, "text", valueText);
+        SetBool(display, "asPercentage", asPercentage);
+        display.Refresh();
+
         return slider;
     }
 
@@ -423,6 +664,36 @@ public static class MenuBuilder
             return;
         }
         property.objectReferenceValue = value;
+        serialized.ApplyModifiedProperties();
+    }
+
+    private static void SetBool(Object target, string propertyName, bool value)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        SerializedProperty property = serialized.FindProperty(propertyName);
+        if (property == null)
+        {
+            Debug.LogWarning($"[Construir menús] {target.GetType().Name} no té el camp «{propertyName}».");
+            return;
+        }
+        property.boolValue = value;
+        serialized.ApplyModifiedProperties();
+    }
+
+    // Omple la llista de pestanyes de l'OptionsMenu (cada pestanya té el botó, el contingut, la ratlla i el text)
+    private static void SetTabs(OptionsMenu optionsMenu, Button[] buttons, GameObject[] pages, GameObject[] indicators, TextMeshProUGUI[] labels)
+    {
+        SerializedObject serialized = new SerializedObject(optionsMenu);
+        SerializedProperty tabs = serialized.FindProperty("tabs");
+        tabs.arraySize = buttons.Length;
+        for (int i = 0; i < buttons.Length; i++)
+        {
+            SerializedProperty tab = tabs.GetArrayElementAtIndex(i);
+            tab.FindPropertyRelative("button").objectReferenceValue = buttons[i];
+            tab.FindPropertyRelative("page").objectReferenceValue = pages[i];
+            tab.FindPropertyRelative("indicator").objectReferenceValue = indicators[i];
+            tab.FindPropertyRelative("label").objectReferenceValue = labels[i];
+        }
         serialized.ApplyModifiedProperties();
     }
 

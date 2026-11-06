@@ -72,7 +72,8 @@ public class ThirdPersonCamera : MonoBehaviour
                 ? gamepadSensitivity * GameSettings.GamepadSensitivity * Time.deltaTime
                 : sensitivity * GameSettings.MouseSensitivity;
             yaw += lookInput.x * lookScale;
-            pitch -= lookInput.y * lookScale;
+            // Amb «Invertir l'eix vertical» (menú d'opcions), moure amunt fa mirar avall
+            pitch -= lookInput.y * lookScale * (GameSettings.InvertY ? -1f : 1f);
         }
 
         // Limitem el moviment vertical per evitar que la càmera es giri de cap per avall

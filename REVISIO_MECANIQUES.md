@@ -11,12 +11,12 @@ Llegenda: ✅ coincideix · ⚠️ coincideix en part · ❌ no coincideix
 ## 1. Resum
 
 - Les mecàniques principals **estan implementades i funcionen**: locomoció, escalada, swing, connectar, NPCs, missions, pausa i victòria. En la majoria de punts el codi fa el que diu la memòria.
-- S'han trobat **9 errors** que feien que algun repte no es comportés com diu la memòria, o que el joc es pogués quedar bloquejat sense poder acabar-lo. **8 ja estan corregits** al codi i a l'escena. El 9è (botons de la pantalla de victòria) s'ha de fer a l'editor: són 2 minuts (secció 2.1). Detall a la secció 4.
+- S'han trobat **9 errors** que feien que algun repte no es comportés com diu la memòria, o que el joc es pogués quedar bloquejat sense poder acabar-lo. **Tots 9 ja estan corregits** al codi i a l'escena. L'últim, els botons de la pantalla de victòria, s'ha resolt amb els menús nous (secció 2.1). Detall a la secció 4.
 - En una segona ronda s'ha fet que el joc **vagi més fluid** i s'hi han **afegit funcionalitats** (secció 5):
   - Ara existeixen el **Grappling** i el **comandament d'Xbox**, que la memòria ja descrivia.
   - Hi ha **previsualització dels ponts**, **escalada ràpida**, **avisos de missió**, un **efecte en recollir objectes** i una **xarxa de seguretat** si l'aranya cau fora del mapa.
   - L'escalada és **més enganxosa**: l'aranya ja no es desenganxa dels sostres en moure's, però saltant continua desenganxant-se a l'instant (M9).
-- S'ha **preparat el menú principal** (`MainMenu.cs`), però cal muntar el panell a l'editor (secció 2.2).
+- Els **menús** ja estan muntats a l'escena: menú principal, pausa, controls, opcions amb pestanyes i victòria, tots amb el mateix estil (secció 2.1).
 - Encara hi ha coses **que la memòria descriu però el joc no fa**, com el lliurament de missions o el circuit aeri en ordre. A la secció 6 tens text alternatiu.
 - Alguns apartats del capítol 6 descriuen **una versió antiga del codi**. El cas més clar és l'escalada: el codi real és **més avançat** del que explica la memòria. A la secció 7 tens paràgrafs nous per substituir-los.
 
@@ -28,66 +28,30 @@ Els canvis de codi i d'escena ja estan fets.
 
 > **En obrir el projecte**, Unity tornarà a generar `GameInput.cs` a partir de `GameInput.inputactions`. És normal: s'hi han afegit l'acció *Grapple* i els botons del comandament. Els camps nous dels scripts sortiran a l'Inspector amb els valors per defecte.
 
-Falten dues coses que s'han de muntar a l'editor, perquè crear UI escrivint a mà l'arxiu de l'escena és arriscat. La UI és dins del prefab `UI_Pantalla_Sempre`. Hi trobaràs `PauseManager`, que conté el panell `PauseMenu`, i `MenuVictoria`.
+### 2.1 Menús (ja fet)
 
-### 2.1 Botons de la pantalla de victòria (error A4)
+Els menús ja estan muntats a `Joc.unity`, dins de l'objecte `UI_Menus`. Els ha creat l'eina **Tools > TFG > Construir menús**, i tots tenen el mateix estil:
 
-1. Obre `Joc.unity`. A la Hierarchy, desplega `UI_Pantalla_Sempre > PauseManager > PauseMenu`.
-2. Selecciona `RestartButton` i `ExitButton`, prem **Ctrl+D** i arrossega les dues còpies dins de `MenuVictoria`.
-   - `MenuVictoria` està desactivat a l'escena. Si no el veus a la Scene, activa'l: `MenuVictoria.cs` ja l'amaga quan comença el joc.
-3. **Primera còpia:** a *Button > On Click ()*, esborra la crida antiga a `PauseMenu` amb el botó «−». Afegeix-ne una de nova amb «+». Arrossega-hi `_MissionManagar` i tria `MenuVictoria > ReiniciarJoc`. Canvia el text a **«Tornar al menú»**.
-4. **Segona còpia:** fes el mateix amb `MenuVictoria > SortirDelJoc`. Text: **«Sortir»**.
-5. Col·loca els botons sota el text de victòria i desa l'escena (Ctrl+S).
+- **Menú principal:** Jugar, Controls, Opcions i Sortir. Mentre es veu, el joc està aturat i el HUD (missions i punt de mira) està amagat.
+- **Pausa** (Esc, P o el botó Menú del comandament): Continuar, Controls, Opcions i Menú principal.
+- **Controls:** una taula amb les tecles i els botons del comandament.
+- **Opcions**, amb tres pestanyes. Amb el comandament, LB i RB canvien de pestanya.
+  - **So:** volum general, música i efectes de so.
+  - **Càmera:** sensibilitat del ratolí i del comandament, i invertir l'eix vertical.
+  - **Pantalla:** pantalla completa, qualitat gràfica (Baixa o Alta) i sincronització vertical.
+- **Victòria:** el temps de la partida, Menú principal i Sortir. Això corregeix l'error A4.
 
-Amb un comandament connectat, el primer botó queda seleccionat automàticament.
+Les opcions es guarden entre partides. Esc i el botó B del comandament fan de «Tornar».
 
-### 2.2 Menú principal (Start / Controls / Quit)
+Els panells antics de pausa i victòria (dins d'`UI_Pantalla_Sempre`) estan desactivats, però no s'han esborrat.
 
-1. Selecciona el panell `PauseMenu` (dins de `PauseManager`), prem **Ctrl+D** i anomena la còpia `MainMenuPanel`.
-2. Arrossega `MainMenuPanel` a sobre d'`UI_Pantalla_Sempre` perquè en sigui fill directe. Deixa'l com a **últim fill**: així es dibuixa per sobre de la resta.
-3. Canvia el text `PauseText` pel títol del joc. Reanomena els botons:
-   - `ResumeButton` → `StartButton` (text «Start»)
-   - `RestartButton` → `ControlsButton` (text «Controls»)
-   - `ExitButton` → `QuitButton` (text «Quit»)
-4. Dins de `MainMenuPanel`, crea un panell `ControlsPanel` (clic dret > *UI > Panel*). Afegeix-hi:
-   - un text (*UI > Text - TextMeshPro*) amb el text del requadre de sota;
-   - un botó `BackButton` amb el text «Tornar» (pots duplicar-ne un dels anteriors).
-5. Selecciona `PauseManager`, fes *Add Component > MainMenu* i assigna-hi:
-   - **Main Menu Panel** = `MainMenuPanel`
-   - **Controls Panel** = `ControlsPanel`
-6. Connecta els botons. A cada *On Click ()*, posa l'objecte `PauseManager`.
-   - **Important:** els botons duplicats encara porten les crides antigues a `PauseMenu` (`ResumeGame`, `RestartLevel`, `QuitGame`). Esborra-les abans d'afegir les noves.
+El menú és dins de la mateixa escena. Per tant, «Menú principal» (a la pausa i a la victòria) torna a carregar el nivell **i mostra el menú principal**. Això fa que el «Return to menu» de la memòria (5.3.2) sigui cert.
 
-   | Botó | Funció |
-   |---|---|
-   | `StartButton` | `MainMenu > StartGame` |
-   | `ControlsButton` | `MainMenu > ShowControls` |
-   | `QuitButton` | `MainMenu > QuitGame` |
-   | `BackButton` | `MainMenu > HideControls` |
+**Per canviar-los:** el títol del joc i els textos són a [MenuBuilder.cs](Assets/Editor/MenuBuilder.cs) (`GameTitle`, `GameSubtitle`, la taula de controls...). Quan els canviïs, torna a executar *Tools > TFG > Construir menús* i desa l'escena: l'eina esborra `UI_Menus` i el torna a fer. Si toques els menús a mà a l'Inspector, recorda que tornar a executar l'eina desfà aquests canvis.
 
-7. Desa l'escena i prova-ho:
-   - El joc ha de començar al menú, amb el cursor visible.
-   - Esc no ha de fer res al menú.
-   - **Start** ha de començar a jugar.
+**Qualitat gràfica:** perquè hi hagi on triar, el nivell *Mobile* de *Project Settings > Quality* ara també està activat per a PC (Standalone). Al menú surt com a «Baixa». El nivell *PC* surt com a «Alta» i continua sent el nivell per defecte.
 
-Text del panell de controls:
-
-```
-CONTROLS (teclat / comandament)
-Moure / Escalar: W A S D / joystick esquerre
-Mirar / Apuntar: ratolí / joystick dret
-Córrer (i escalar més ràpid): Shift / L3
-Saltar / Salt de paret: Espai / A
-Swing: clic esquerre o F / RT
-Grappling (recollir el fil): Q / LT
-Connectar (pont): clic dret o G / RB
-Interactuar: E / X
-Pausa: Esc o P / Menú
-```
-
-El menú és dins de la mateixa escena. Per tant, «Restart» del menú de pausa i «Tornar al menú» de la victòria tornen a carregar el nivell **i mostren el menú principal**. Això fa que el «Return to menu» de la memòria (5.3.2) sigui cert.
-
-### 2.3 Opcional
+### 2.2 Opcional
 
 - **Saltar damunt dels ponts.** Si vols que l'aranya pugui saltar quan camina per sobre d'un pont de teranyina, ves a *Player > SpiderLocomotion > Walkable Layers* i afegeix-hi la capa `Climbing` (vegeu C3).
 - **Component sobrant.** Pots treure el component `PlayerInput` del Player: apunta a un arxiu d'accions que ja no existeix i no s'utilitza.
@@ -114,9 +78,9 @@ El menú és dins de la mateixa escena. Per tant, «Restart» del menú de pausa
 | Repte 1: cursa contrarellotge (5.2.2, 6.5.5) | [TimeTrialChallenge.cs](Assets/Scripts/Quest/QuestImplementation/TimeTrialChallenge.cs), [RaceNPC.cs](Assets/Scripts/Quest/RaceNPC.cs) | ✅ — el temps límit no funcionava, corregit (A1); ara també hi ha escalada ràpida (N4) · ⚠️ el text (C8) |
 | Repte 2: circuit aeri (5.2.2, 6.5.6) | `MissionCollectible` a les 5 anelles `AroAeri` | ⚠️ no cal fer-lo a l'aire ni en ordre (B4) |
 | NPCs i diàlegs (5.2.6, 6.4) | [MissionNPC.cs:38](Assets/Scripts/Quest/MissionNPC.cs#L38) | ✅ · ❌ no hi ha «lliurament» (B3) |
-| Menú principal (5.3.2, 6.3.1) | [MainMenu.cs](Assets/Scripts/UI/MainMenu.cs) | ⚠️ codi preparat; cal muntar el panell (secció 2.2) |
-| Menú de pausa (5.3.2, 6.3.2) | [PauseMenu.cs:40](Assets/Scripts/UI/PauseMenu.cs#L40) | ✅ — corregit (A3) · ⚠️ opcions de 5.3.2 (B8) |
-| Menú final (5.3.2, 6.3.3) | [MissionManager.cs:94](Assets/Scripts/Quest/MissionManager.cs#L94), [MenuVictoria.cs](Assets/Scripts/UI/MenuVictoria.cs) | ✅ la lògica · ❌ no té botons (A4, secció 2.1) |
+| Menú principal (5.3.2, 6.3.1) | [MainMenu.cs](Assets/Scripts/UI/MainMenu.cs) | ✅ muntat a l'escena, amb Controls i Opcions (secció 2.1) |
+| Menú de pausa (5.3.2, 6.3.2) | [PauseMenu.cs:40](Assets/Scripts/UI/PauseMenu.cs#L40) | ✅ — corregit (A3); ara amb Controls i Opcions (B8) |
+| Menú final (5.3.2, 6.3.3) | [MissionManager.cs:94](Assets/Scripts/Quest/MissionManager.cs#L94), [MenuVictoria.cs](Assets/Scripts/UI/MenuVictoria.cs) | ✅ — no tenia botons, corregit (A4, secció 2.1) |
 | Crosshair (5.3.3, 6.3.4.1) | [DynamicCrosshair.cs:27](Assets/Scripts/UI/DynamicCrosshair.cs#L27) | ✅ — ara indica també el pont a mig fer (N3) · ⚠️ (B7) |
 | Quest Tracker (5.3.3, 6.3.4.2) | [MissionManager.cs:111](Assets/Scripts/Quest/MissionManager.cs#L111) | ✅ — línia duplicada, corregit (A5); amb avisos (N5) · ⚠️ el text (C4) |
 | Manual de controls (12.2) | `GameInput.inputactions` | ✅ les tecles · ⚠️ faltes i tecles noves (C10) |
@@ -163,7 +127,7 @@ El menú és dins de la mateixa escena. Per tant, «Restart» del menú de pausa
 
 **Problema:** `MenuVictoria.ReiniciarJoc()` i `SortirDelJoc()` existeixen, però el panell `MenuVictoria` de l'escena només té un `Text`. Cap botó crida aquestes funcions.
 
-**Correcció:** s'ha de fer a l'editor (secció 2.1).
+**Correcció:** la pantalla de victòria nova (secció 2.1) té els botons «Menú principal» (`ReiniciarJoc`) i «Sortir» (`SortirDelJoc`), i mostra el temps de la partida.
 
 ### A5. La cursa sortia dues vegades al Quest Tracker
 
@@ -495,10 +459,12 @@ Vegeu N2 i el text per al 6.2.2.1 a la secció 5.3. La frase del 5.3.2 («el bot
 
 ### B8. Opcions del menú de pausa
 
-**El problema:** el 5.3.2 diu «Resume, Controls i Return to menu», però el 6.3.2 i el joc tenen Resume, Restart i Exit.
+**El problema:** el 5.3.2 diu «Resume, Controls i Return to menu», però el 6.3.2 i el joc tenien Resume, Restart i Exit.
 
-**Proposta (5.3.2):**
-> Ofereix les opcions Resume (continuar jugant), Restart (tornar a carregar el nivell, que torna a mostrar el menú principal) i Exit (sortir del joc).
+**Resolt amb els menús nous (secció 2.1):** la pausa ara té Continuar, Controls, Opcions i Menú principal. Això és el que diu el 5.3.2, més Opcions. Al 5.3.2 només cal afegir-hi les Opcions. El que s'ha de canviar és el 6.3.2:
+
+**Proposta (6.3.2):**
+> El menú de pausa ofereix quatre opcions: Continuar (reprèn el joc), Controls (mostra la taula de controls), Opcions (obre la pantalla d'opcions) i Menú principal (torna a carregar el nivell, que torna a mostrar el menú inicial).
 
 ---
 
@@ -554,7 +520,7 @@ A més, la memòria no explica dues coses: que amb WASD s'aplica força durant e
 
 > S'assigna el pont a la capa Climbing. D'una banda, el sistema d'escalada el reconeix com una superfície on enganxar-se, de manera que l'aranya hi pot caminar encara que estigui inclinat. De l'altra, els reptes (la palanca i la connexió de plataformes) identifiquen els objectes d'aquesta capa com a teranyines.
 
-*(Si fas l'opcional 2.3 i afegeixes `Climbing` a Walkable Layers, també podràs dir que el sensor de terra el detecta i que s'hi pot saltar.)*
+*(Si fas l'opcional 2.2 i afegeixes `Climbing` a Walkable Layers, també podràs dir que el sensor de terra el detecta i que s'hi pot saltar.)*
 
 ### C4. 6.3.4.2 Quest Tracker
 
@@ -626,16 +592,22 @@ La taula actual té faltes d'ortografia («Tecali i ratoli», «Corra», «Spai�
 
 ### C11. 6.3.1 Menú inicial (ara està buit)
 
-**Text per a quan hagis muntat el menú (secció 2.2):**
+**Text nou:**
 
-> El menú inicial és un panell de la mateixa escena del nivell, gestionat pel script MainMenu.cs. En arrencar l'escena, el mètode Start mostra el panell, atura el temps (Time.timeScale = 0) i allibera el cursor. Ofereix tres opcions: Start amaga el panell, reprèn el temps i bloqueja el cursor al centre per controlar la càmera; Controls mostra un panell informatiu amb les tecles; i Quit tanca l'aplicació (Application.Quit). El script s'executa després de la càmera ([DefaultExecutionOrder]), perquè aquesta bloqueja el cursor en començar. Si hi ha un comandament connectat, se selecciona el primer botó perquè es pugui navegar sense cursor. Com que el menú forma part de l'escena, reiniciar el nivell des de la pausa o des de la pantalla final torna a mostrar el menú principal.
+> El menú inicial és un panell de la mateixa escena del nivell, gestionat pel script MainMenu.cs. En arrencar l'escena, el mètode Start mostra el panell, atura el temps (Time.timeScale = 0), allibera el cursor i amaga el HUD. Ofereix quatre opcions: Jugar amaga el panell, reprèn el temps, torna a mostrar el HUD i bloqueja el cursor al centre per controlar la càmera; Controls mostra una taula amb les tecles i els botons del comandament; Opcions obre la pantalla d'opcions; i Sortir tanca l'aplicació (Application.Quit). El script s'executa després de la càmera ([DefaultExecutionOrder]), perquè aquesta bloqueja el cursor en començar. Si hi ha un comandament connectat, se selecciona el primer botó perquè es pugui navegar sense cursor. Com que el menú forma part de l'escena, tornar al menú principal des de la pausa o des de la pantalla final recarrega el nivell i torna a mostrar el menú.
+>
+> Totes les pantalles de menú les construeix una eina de l'editor (MenuBuilder.cs, Tools > TFG > Construir menús), de manera que comparteixen colors, tipografia i mides. Les pantalles de Controls i Opcions s'obren per sobre de la pantalla d'on es venia (OverlayPanel.cs) i, en tancar-les amb «Tornar», Esc o el botó B del comandament, s'hi torna.
+
+**Nou apartat, Opcions (OptionsMenu.cs i GameSettings.cs):**
+
+> La pantalla d'opcions s'organitza en tres pestanyes: So (volum general, música i efectes), Càmera (sensibilitat del ratolí i del comandament, i inversió de l'eix vertical) i Pantalla (pantalla completa, qualitat gràfica i sincronització vertical). Amb el comandament, LB i RB canvien de pestanya. Cada control lliscant mostra el seu valor al costat. Els valors es guarden a la classe estàtica GameSettings amb PlayerPrefs, de manera que es mantenen entre partides; quan un valor canvia, GameSettings llança un esdeveniment perquè l'AudioManager actualitzi els volums a l'instant, i la càmera llegeix la sensibilitat a cada fotograma. La qualitat gràfica correspon als nivells de Project Settings > Quality (Baixa i Alta), i en arrencar el joc s'aplica l'última que va triar el jugador.
 
 ### C12. 6.3.2 i 6.3.3 (petites addicions)
 
 - **6.3.2**, afegeix:
   > Si el joc ja està aturat per una altra pantalla (menú inicial o victòria), la tecla de pausa s'ignora. Mentre el joc està aturat, l'InputReader tampoc no envia accions de joc noves, de manera que els clics als botons no llancen teranyines.
-- **6.3.3**, «Transició d'Estat» (un cop fets els botons de la secció 2.1):
-  > La interfície final es mostra en pantalla, atura el temps de joc (Time.timeScale = 0), allibera el cursor i ofereix dos botons: tornar a començar (ReiniciarJoc, que recarrega l'escena i torna al menú principal) i sortir de l'aplicació (SortirDelJoc).
+- **6.3.3**, «Transició d'Estat»:
+  > La interfície final es mostra en pantalla, atura el temps de joc (Time.timeScale = 0), allibera el cursor, mostra quant ha durat la partida i ofereix dos botons: tornar al menú principal (ReiniciarJoc, que recarrega l'escena) i sortir de l'aplicació (SortirDelJoc).
 
 ---
 
@@ -702,7 +674,7 @@ La taula actual té faltes d'ortografia («Tecali i ratoli», «Corra», «Spai�
 1. **Obre el projecte a Unity 6000.4.3f1.**
    - Deixa que regeneri `GameInput.cs`.
    - La consola no ha de mostrar errors, i `Joc.unity` s'ha de carregar sense avisos de scripts que falten.
-2. **Fes els passos de la secció 2** (botons de victòria i menú principal).
+2. **Mira la secció 2.** Els menús ja estan muntats; només queda l'apartat opcional.
 3. **Prova les correccions en Play Mode:**
    - **Cursa:**
      - Parla amb l'NPC de la cursa, deixa que s'acabi el temps i puja a la meta: la missió **no** s'ha de completar.
@@ -715,13 +687,14 @@ La taula actual té faltes d'ortografia («Tecali i ratoli», «Corra», «Spai�
    - **Roca:** arrossega-la amb el Swing. El fil ha de seguir la roca, i en posar-la sobre la placa la porta s'ha d'obrir.
    - **Càmera:** posa un arbre entre la càmera i l'aranya. La càmera s'ha d'apropar.
    - **Menús:**
-     - El joc ha de començar al menú principal, amb el cursor visible.
-     - Controls s'ha d'obrir i tancar, i Start ha de començar el joc.
-     - Esc no ha de fer res al menú.
+     - El joc ha de començar al menú principal, amb el cursor visible i sense el HUD.
+     - Controls i Opcions s'han d'obrir i tancar (amb «Tornar» o amb Esc), i Jugar ha de començar el joc.
+     - A Opcions, canvia de pestanya i mou els controls: el volum ha de canviar en directe, i en tornar a obrir el joc els valors s'han de mantenir.
+     - Esc no ha de fer res al menú principal.
    - **Final:**
-     - En completar les 6 missions ha de sortir la pantalla de victòria.
+     - En lliurar les 6 missions ha de sortir la pantalla de victòria, amb el temps de la partida.
      - Esc no ha de fer res.
-     - «Tornar al menú» ha de tornar al menú principal, i «Sortir» ha de tancar el joc.
+     - «Menú principal» ha de tornar al menú principal, i «Sortir» ha de tancar el joc.
 4. **Prova les millores:**
    - **Fluïdesa:** camina i balanceja't mirant l'aranya: no ha de fer petits salts visuals.
    - **Salt:** surt caminant d'una vora i prem Espai just després; també prem-lo just abans d'aterrar. En tots dos casos ha de saltar.

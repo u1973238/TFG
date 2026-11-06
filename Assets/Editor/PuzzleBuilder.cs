@@ -13,9 +13,11 @@ public static class PuzzleBuilder
     [MenuItem(MenuRoot + "Porta amb condicions")]
     public static void CreateDoor()
     {
+        // Capa Default: l'aranya no s'hi pot enfilar ni hi pot enganxar fils (si no, se saltaria el trencaclosques)
         GameObject door = CreateBlock("PortaPuzle", PrimitiveType.Cube, SpawnPoint() + Vector3.up * 2.5f, new Vector3(4f, 5f, 0.6f), "Porta", new Color(0.55f, 0.36f, 0.2f));
         PuzzleMover mover = door.AddComponent<PuzzleMover>();
         SetVector(mover, "openOffset", new Vector3(0f, -5.2f, 0f));
+        SetFloat(mover, "openDuration", 1.5f);
         Finish(door, "Arrossega palanques o plaques a la llista «Switches» del PuzzleMover.");
     }
 
@@ -26,6 +28,9 @@ public static class PuzzleBuilder
         platform.layer = LayerMask.NameToLayer("Walkable");
         PuzzleMover mover = platform.AddComponent<PuzzleMover>();
         SetVector(mover, "openOffset", new Vector3(0f, 6f, 0f));
+        // Puja a poc a poc (6 metres en 4 segons) perquè l'aranya s'hi quedi a sobre
+        SetFloat(mover, "openDuration", 4f);
+        SetFloat(mover, "closeDuration", 4f);
         Finish(platform, "Puja quan s'activen els interruptors de la llista «Switches».");
     }
 
@@ -136,6 +141,20 @@ public static class PuzzleBuilder
         PlatformLinkTrigger link = zone.AddComponent<PlatformLinkTrigger>();
         SetObject(link, "safePoint", safePoint.transform);
         Finish(zone, "Posa la zona al buit entre les plataformes, arrossega l'animal a «Rescued Animal» i mou «PuntSegur» a l'altra banda. Suma 1 a «Required Amount» de la missió per cada zona.");
+    }
+
+    [MenuItem(MenuRoot + "Zona amb límit de ponts")]
+    public static void CreateBridgeLimitZone()
+    {
+        GameObject zone = new GameObject("ZonaLimitPonts");
+        zone.transform.position = SpawnPoint() + Vector3.up * 5f;
+
+        // Caixa invisible: mentre l'aranya hi és a dins, només pot tenir uns quants ponts alhora
+        BoxCollider trigger = zone.AddComponent<BoxCollider>();
+        trigger.isTrigger = true;
+        trigger.size = new Vector3(20f, 10f, 20f);
+        zone.AddComponent<BridgeLimitZone>();
+        Finish(zone, "Fes la caixa (Box Collider > Size) tan gran com el trencaclosques i tria «Max Bridges».");
     }
 
     [MenuItem("Tools/TFG/Configurar circuit de cèrcols")]
@@ -257,6 +276,13 @@ public static class PuzzleBuilder
     {
         SerializedObject serialized = new SerializedObject(target);
         serialized.FindProperty(propertyName).vector3Value = value;
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+    }
+
+    private static void SetFloat(Object target, string propertyName, float value)
+    {
+        SerializedObject serialized = new SerializedObject(target);
+        serialized.FindProperty(propertyName).floatValue = value;
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 }

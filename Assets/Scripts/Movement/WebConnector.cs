@@ -88,7 +88,7 @@ public class WebConnector : MonoBehaviour
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Centre de la pantalla
         Vector3 endPoint;
 
-        if (Physics.Raycast(ray, out RaycastHit hit, maxConnectDistance, anchorLayers))
+        if (Physics.Raycast(ray, out RaycastHit hit, maxConnectDistance, anchorLayers, QueryTriggerInteraction.Ignore))
         {
             endPoint = hit.point;
             IsAimingAtValidAnchor = IsValidBridge(firstAnchorPoint.Value, hit.point);
@@ -123,7 +123,8 @@ public class WebConnector : MonoBehaviour
         RaycastHit hit;
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // Centre de la pantalla
 
-        if (Physics.Raycast(ray, out hit, maxConnectDistance, anchorLayers))
+        // Els Triggers s'ignoren: apuntant a una palanca, el fil la travessa i s'enganxa a la paret del darrere
+        if (Physics.Raycast(ray, out hit, maxConnectDistance, anchorLayers, QueryTriggerInteraction.Ignore))
         {
             if (firstAnchorPoint == null)
             {
@@ -223,14 +224,9 @@ public class WebConnector : MonoBehaviour
                        bouncyBridges, bounceThreshold, bounciness, maxBounceSpeed);
         AudioManager.Play("bridge");
 
-        // Si hi ha un màxim de ponts, el més antic desapareix
-        bridges.RemoveAll(existing => existing == null);
+        // Si hi ha un màxim de ponts, els més antics desapareixen
         bridges.Add(bridge);
-        if (maxBridges > 0 && bridges.Count > maxBridges + PlayerUpgrades.ExtraBridges)
-        {
-            Destroy(bridges[0]);
-            bridges.RemoveAt(0);
-        }
+        TrimBridges();
 
         // 3. Afegim la BoxCollider perquè l'aranya hi camini per sobre
         BoxCollider boxCollider = bridge.AddComponent<BoxCollider>();
@@ -242,6 +238,20 @@ public class WebConnector : MonoBehaviour
         bridge.layer = LayerMask.NameToLayer("Climbing");
 
         //Debug.Log($"Pont de teranyina de {distance:F2} metres de longitud creat amb èxit!");
+    }
+
+    // Si hi ha un màxim de ponts, esborra els més antics que sobren. Es crida en fer un pont
+    // i quan canvia el límit (per exemple, en entrar a una zona amb límit de ponts)
+    public void TrimBridges()
+    {
+        bridges.RemoveAll(existing => existing == null);
+        if (maxBridges <= 0) return;
+
+        while (bridges.Count > maxBridges + PlayerUpgrades.ExtraBridges)
+        {
+            Destroy(bridges[0]);
+            bridges.RemoveAt(0);
+        }
     }
 
     private LineRenderer CreateWebLine(Transform parent, string lineName, float width)
