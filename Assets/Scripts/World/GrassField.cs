@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-// Herba procedural: mates de fulles que creixen damunt de les illes, només a les parts verdes i planes.
+// Herba procedural: mates de fulles (i clapes de flors) que creixen damunt de les illes, només a les parts verdes i planes.
 // Es genera sola en obrir l'escena i en començar el joc, i no es desa a l'escena (així no ocupa espai al projecte).
 // Amb el shader TFG/Herba es mou amb el vent, s'aparta quan hi passa l'aranya i de lluny s'amaga suaument.
 // Per posar-la: Tools > TFG > Posar herba
@@ -44,6 +44,24 @@ public class GrassField : MonoBehaviour
     [Range(0f, 1f)] public float dryChance = 0.12f;
     public Color fallbackGroundColor = new Color(0.3f, 0.55f, 0.15f); // Si no es pot saber el color del terra
 
+    [Header("Flors")]
+    [Tooltip("Quantes flors hi ha a les clapes de flors (0 = cap flor)")]
+    [Range(0f, 1f)] public float flowerDensity = 0.45f;
+    public float flowerPatchSize = 8f; // Mida de les clapes de flors (metres): les flors creixen juntes
+    public Vector2 flowerHeight = new Vector2(0.9f, 1.7f); // Alçada de la tija: mínima i màxima (metres)
+    public float flowerSize = 0.6f; // Diàmetre de la flor (metres). Per a una aranya, les flors són grans!
+    [Tooltip("Colors dels pètals. Cada clapa té sobretot un color. Millor no fer-les grogues ni vermelles: es confondrien amb els «!», els cubs i les marietes. " +
+             "Fes-los ben vius: el sol els dona de ple i els colors pàl·lids es veuen gairebé blancs")]
+    public Color[] flowerColors =
+    {
+        new Color(0.88f, 0.88f, 0.84f), // Blanc (margarides)
+        new Color(0.95f, 0.38f, 0.62f), // Rosa
+        new Color(0.62f, 0.38f, 0.95f), // Lila
+        new Color(0.32f, 0.55f, 1f), // Blau
+    };
+    public Color flowerCenterColor = new Color(0.98f, 0.78f, 0.25f);
+    public Color stemColor = new Color(0.25f, 0.5f, 0.12f);
+
     [Header("Distància")]
     public float fadeStart = 50f; // A partir d'aquí l'herba s'encongeix...
     public float fadeEnd = 75f;   // ...i aquí ja no es veu (la boira comença als 70 m)
@@ -61,8 +79,12 @@ public class GrassField : MonoBehaviour
     private bool started;
     private bool generated;
 
+    private readonly List<Vector3> flowerPositions = new List<Vector3>();
+
     public int TuftCount { get; private set; }
     public int BladeCount { get; private set; }
+    public int FlowerCount => flowerPositions.Count;
+    public IReadOnlyList<Vector3> FlowerPositions => flowerPositions; // On són els caps de les flors (per si es vol posar-hi abelles o papallones)
     public int ChunkCount => chunks.Count;
     public float LastGenerationMs { get; private set; }
 
@@ -167,6 +189,7 @@ public class GrassField : MonoBehaviour
         RaycastHit[] hits = new RaycastHit[16];
         TuftCount = 0;
         BladeCount = 0;
+        flowerPositions.Clear();
 
         foreach (Collider ground in FindGrounds())
         {
@@ -196,6 +219,9 @@ public class GrassField : MonoBehaviour
                     Vector2Int cell = new Vector2Int(Mathf.FloorToInt(hit.point.x / ChunkSize), Mathf.FloorToInt(hit.point.z / ChunkSize));
                     if (!builders.TryGetValue(cell, out GrassMeshBuilder builder)) builders[cell] = builder = new GrassMeshBuilder();
                     AddTuft(builder, hit.point, hit.normal, groundColor, ref random);
+
+                    // A les clapes de flors, algunes mates tenen una flor que en surt pel mig
+                    if (FlowerHere(x, z, ref random, out Color petalColor)) AddFlower(builder, hit.point, hit.normal, petalColor, ref random);
                 }
             }
         }
@@ -343,6 +369,81 @@ public class GrassField : MonoBehaviour
         BladeCount += blades;
     }
 
+    // Hi ha flor en aquest punt? Les flors fan clapes (soroll de Perlin) i cada clapa té sobretot un color
+    private bool FlowerHere(float x, float z, ref TuftRandom random, out Color color)
+    {
+        color = Color.white;
+        if (flowerDensity <= 0f || flowerColors == null || flowerColors.Length == 0) return false;
+
+        float noise = Mathf.PerlinNoise(x / flowerPatchSize + seed * 1.13f + 31.7f, z / flowerPatchSize + seed * 0.53f + 17.3f);
+        float chance = flowerDensity * Mathf.InverseLerp(0.5f, 0.75f, noise);
+        if (random.Next() >= chance) return false;
+
+        TuftRandom patch = new TuftRandom(Mathf.FloorToInt(x / flowerPatchSize), Mathf.FloorToInt(z / flowerPatchSize), seed + 101);
+        int index = Mathf.FloorToInt(patch.Next() * flowerColors.Length) % flowerColors.Length;
+        if (random.Next() < 0.2f) index = Mathf.FloorToInt(random.Next() * flowerColors.Length) % flowerColors.Length;
+        color = flowerColors[index];
+        return true;
+    }
+
+    // Una flor: una tija prima i un cap de pètals en estrella amb un botó al mig.
+    // Tot el cap fa servir el mateix «y = 1» de les UV que la punta de les fulles: es mou amb el vent i s'aparta per l'aranya
+    private void AddFlower(GrassMeshBuilder builder, Vector3 root, Vector3 normal, Color petalColor, ref TuftRandom random)
+    {
+        float height = Mathf.Lerp(flowerHeight.x, flowerHeight.y, random.Next());
+        float radius = flowerSize * 0.5f * Mathf.Lerp(0.75f, 1.25f, random.Next());
+        float total = height + BuriedDepth;
+        Vector3 lean = Quaternion.Euler(0f, random.Next() * 360f, 0f) * Vector3.forward;
+        Vector3 start = root - Vector3.up * BuriedDepth;
+        Vector3 top = start + lean * (height * Mathf.Lerp(0.04f, 0.18f, random.Next())) + Vector3.up * total;
+
+        // Tija: dos triangles prims creuats, perquè es vegi des de qualsevol costat
+        Vector3 sideA = new Vector3(lean.z, 0f, -lean.x) * 0.03f;
+        Vector3 sideB = lean * 0.03f;
+        Color stemBase = stemColor * 0.8f;
+        stemBase.a = 1f;
+        builder.AddTriangle(start - sideA, start + sideA, top, normal, stemBase, stemBase, stemColor, total, 0f, 0f, 1f);
+        builder.AddTriangle(start - sideB, start + sideB, top, normal, stemBase, stemBase, stemColor, total, 0f, 0f, 1f);
+
+        // El cap mira amunt, una mica cap on s'inclina la tija
+        Vector3 up = (Vector3.up + lean * 0.35f).normalized;
+        Vector3 u = Vector3.Cross(up, Vector3.forward).normalized;
+        Vector3 v = Vector3.Cross(up, u);
+
+        // Pètals: cada un és un estel (dos triangles), aixecats per fer forma de copa (així també es veuen de costat)
+        Color inner = petalColor * 0.75f;
+        inner.a = 1f;
+        Color outer = petalColor;
+        outer.a = 1f;
+        int petals = random.Next() < 0.5f ? 5 : 6;
+        float first = random.Next() * Mathf.PI * 2f;
+        float halfWidth = Mathf.PI / petals * 0.6f;
+        for (int p = 0; p < petals; p++)
+        {
+            float angle = first + p * Mathf.PI * 2f / petals;
+            Vector3 left = top + Direction(u, v, angle - halfWidth) * (radius * 0.55f) + up * (radius * 0.12f);
+            Vector3 right = top + Direction(u, v, angle + halfWidth) * (radius * 0.55f) + up * (radius * 0.12f);
+            Vector3 tip = top + Direction(u, v, angle) * radius + up * (radius * 0.35f);
+            builder.AddTriangle(top, left, tip, normal, inner, petalColor, outer, total, 1f, 1f, 1f);
+            builder.AddTriangle(top, tip, right, normal, inner, outer, petalColor, total, 1f, 1f, 1f);
+        }
+
+        // Botó del mig, més amunt que els pètals perquè no s'hi barregi
+        Vector3 bump = top + up * (radius * 0.34f);
+        Color centerEdge = flowerCenterColor * 0.8f;
+        centerEdge.a = 1f;
+        for (int k = 0; k < 5; k++)
+        {
+            Vector3 a = top + Direction(u, v, k * Mathf.PI * 0.4f) * (radius * 0.28f) + up * (radius * 0.18f);
+            Vector3 b = top + Direction(u, v, (k + 1) * Mathf.PI * 0.4f) * (radius * 0.28f) + up * (radius * 0.18f);
+            builder.AddTriangle(a, b, bump, normal, centerEdge, centerEdge, flowerCenterColor, total, 1f, 1f, 1f);
+        }
+
+        flowerPositions.Add(top);
+    }
+
+    private static Vector3 Direction(Vector3 u, Vector3 v, float angle) => u * Mathf.Cos(angle) + v * Mathf.Sin(angle);
+
     private void CreateChunk(Vector2Int cell, GrassMeshBuilder builder)
     {
         // Els vèrtexs es guarden en l'espai d'aquest objecte (per si es mou)
@@ -463,22 +564,29 @@ public class GrassField : MonoBehaviour
         public readonly List<Vector2> Uvs = new List<Vector2>();
         public readonly List<int> Triangles = new List<int>();
 
-        // Una fulla és un triangle: dos vèrtexs a la base i un a la punta. A les UV: x = alçada de la fulla, y = 0 a la base i 1 a la punta
+        // Una fulla és un triangle: dos vèrtexs a la base i un a la punta
         public void AddBlade(Vector3 left, Vector3 right, Vector3 tip, Vector3 normal, Color baseColor, Color tipColor, float height)
         {
+            AddTriangle(left, right, tip, normal, baseColor, baseColor, tipColor, height, 0f, 0f, 1f);
+        }
+
+        // A les UV: x = alçada de la planta (m), y = 0 a la base i 1 a la punta (com més amunt, més es mou)
+        public void AddTriangle(Vector3 a, Vector3 b, Vector3 c, Vector3 normal, Color colorA, Color colorB, Color colorC,
+                                float height, float tipA, float tipB, float tipC)
+        {
             int first = Vertices.Count;
-            Vertices.Add(left);
-            Vertices.Add(right);
-            Vertices.Add(tip);
+            Vertices.Add(a);
+            Vertices.Add(b);
+            Vertices.Add(c);
             Normals.Add(normal);
             Normals.Add(normal);
             Normals.Add(normal);
-            Colors.Add(baseColor);
-            Colors.Add(baseColor);
-            Colors.Add(tipColor);
-            Uvs.Add(new Vector2(height, 0f));
-            Uvs.Add(new Vector2(height, 0f));
-            Uvs.Add(new Vector2(height, 1f));
+            Colors.Add(colorA);
+            Colors.Add(colorB);
+            Colors.Add(colorC);
+            Uvs.Add(new Vector2(height, tipA));
+            Uvs.Add(new Vector2(height, tipB));
+            Uvs.Add(new Vector2(height, tipC));
             Triangles.Add(first);
             Triangles.Add(first + 1);
             Triangles.Add(first + 2);

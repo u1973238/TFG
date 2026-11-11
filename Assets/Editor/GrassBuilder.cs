@@ -22,7 +22,7 @@ public static class GrassBuilder
         Selection.activeGameObject = field.gameObject;
         string grounds = field.grassMaterials.Count > 0 ? string.Join(", ", field.grassMaterials.ConvertAll(m => m != null ? m.name : "?")) : "qualsevol material verd";
         EditorUtility.DisplayDialog("Herba",
-            $"S'han posat {field.TuftCount} mates d'herba ({field.BladeCount} fulles), damunt de: {grounds}.\n\n" +
+            $"S'han posat {field.TuftCount} mates d'herba ({field.BladeCount} fulles) i {field.FlowerCount} flors, damunt de: {grounds}.\n\n" +
             "Per canviar la quantitat, l'alçada o els colors, selecciona l'objecte «Herba» (el vent es canvia al material Herba). " +
             "Desa l'escena (Ctrl+S).", "D'acord");
     }
