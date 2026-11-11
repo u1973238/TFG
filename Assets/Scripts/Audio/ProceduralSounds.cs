@@ -38,6 +38,7 @@ public static class ProceduralSounds
             case "talk": return Sweep(clipName, 0.12f, 600f, 900f, 18f, 0.3f);
             case "ui_click": return Sweep(clipName, 0.04f, 1800f, 1700f, 120f, 0.3f);
             case "door": return Rumble(clipName, 0.7f);
+            case "lever": return Lever(clipName);
             case "collect": return Notes(clipName, 0.1f, 0.35f, 1046.5f, 1568f);
             case "race_start": return Notes(clipName, 0.12f, 0.2f, 523.3f, 523.3f, 1046.5f);
             case "mission_start": return Notes(clipName, 0.1f, 0.35f, 523.3f, 659.3f, 784f);
@@ -196,6 +197,24 @@ public static class ProceduralSounds
             phase += 2f * Mathf.PI * Mathf.Lerp(400f, 900f, t / duration) / SampleRate;
             float envelope = Mathf.Sin(Mathf.PI * t / duration);
             data[i] = ((white - low) * 0.3f + Mathf.Sin(phase) * 0.12f) * envelope;
+        }
+        return Build(clipName, data);
+    }
+
+    // Palanca: uns quants clics del mecanisme i un cop sec de fusta quan el mànec arriba a baix
+    private static AudioClip Lever(string clipName)
+    {
+        float[] data = new float[Samples(0.3f)];
+        AddTaps(data, 3, 0f, 0.1f, 1700f, 2500f, 0.4f);
+
+        int start = Samples(0.13f);
+        float low = 0f;
+        for (int i = 0; start + i < data.Length; i++)
+        {
+            float t = (float)i / SampleRate;
+            low = Mathf.Lerp(low, White(), 0.25f);
+            float knock = Mathf.Sin(2f * Mathf.PI * 210f * t) * Mathf.Exp(-t * 45f);
+            data[start + i] += (knock * 0.7f + low * Mathf.Exp(-t * 70f) * 0.5f) * 0.8f;
         }
         return Build(clipName, data);
     }

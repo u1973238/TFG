@@ -32,8 +32,24 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
     // així els clics als botons dels menús no llancen teranyines ni fan saltar l'aranya
     private static bool IsGameFrozen => Time.timeScale == 0f;
 
+    // Mentre la càmera ensenya alguna cosa (per exemple, la roca que obre una palanca), l'aranya no es mou ni fa accions
+    public bool GameplayBlocked { get; private set; }
+    private bool ActionsBlocked => IsGameFrozen || GameplayBlocked;
+
+    public void SetGameplayBlocked(bool blocked)
+    {
+        if (GameplayBlocked == blocked) return;
+        GameplayBlocked = blocked;
+
+        // En bloquejar, l'aranya s'atura; en desbloquejar, recupera el que s'estigui prement en aquell moment
+        Vector2 move = !blocked && gameInput != null ? gameInput.PlayerControls.Movement.ReadValue<Vector2>() : Vector2.zero;
+        moveEvent?.Invoke(move);
+    }
+
     private void OnEnable()
     {
+        GameplayBlocked = false;
+
         // Inicialitza el GameInput si encara no s'ha fet
         if (gameInput == null)
         {
@@ -61,6 +77,7 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
     public void OnMovement(InputAction.CallbackContext context)
     {
         // Invoca l'esdeveniment de moviment amb el valor del vector només quan hi ha un esdeveniment de moviment
+        if (GameplayBlocked) return; // Mentre la càmera ensenya alguna cosa, l'aranya es queda quieta
         if (moveEvent != null) moveEvent.Invoke(context.ReadValue<Vector2>());
     }
 
@@ -74,7 +91,7 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
     public void OnJump(InputAction.CallbackContext context)
     {
         // Invoca l'esdeveniment de salt només quan l'acció comença
-        if (context.phase == InputActionPhase.Started && jumpEvent != null && !IsGameFrozen)
+        if (context.phase == InputActionPhase.Started && jumpEvent != null && !ActionsBlocked)
         {
             jumpEvent.Invoke();
         }
@@ -83,7 +100,7 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
     public void OnSprint(InputAction.CallbackContext context)
     {
         // Invoca els esdeveniments de començar i cancel·lar l'esprint segons la fase de l'acció
-        if (context.phase == InputActionPhase.Started && sprintStartedEvent != null && !IsGameFrozen)
+        if (context.phase == InputActionPhase.Started && sprintStartedEvent != null && !ActionsBlocked)
         {
             sprintStartedEvent.Invoke();
         }
@@ -96,7 +113,7 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
     public void OnSwing(InputAction.CallbackContext context)
     {
         // Invoca els esdeveniments de començar i cancel·lar el balanceig segons la fase de l'acció
-        if (context.phase == InputActionPhase.Started && swingStartedEvent != null && !IsGameFrozen)
+        if (context.phase == InputActionPhase.Started && swingStartedEvent != null && !ActionsBlocked)
         {
             swingStartedEvent.Invoke();
         }
@@ -109,7 +126,7 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
     public void OnGrapple(InputAction.CallbackContext context)
     {
         // Invoca els esdeveniments de començar i deixar de recollir el fil (grappling) segons la fase de l'acció
-        if (context.phase == InputActionPhase.Started && grappleStartedEvent != null && !IsGameFrozen)
+        if (context.phase == InputActionPhase.Started && grappleStartedEvent != null && !ActionsBlocked)
         {
             grappleStartedEvent.Invoke();
         }
@@ -121,7 +138,7 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
 
     public void OnConnect(InputAction.CallbackContext context) {
         // Invoca l'esdeveniment de connectar només quan l'acció comença
-        if (context.phase == InputActionPhase.Started && connectEvent != null && !IsGameFrozen)
+        if (context.phase == InputActionPhase.Started && connectEvent != null && !ActionsBlocked)
         {
             connectEvent.Invoke();
         }
@@ -129,7 +146,7 @@ public class InputReader : ScriptableObject, GameInput.IPlayerControlsActions
     public void OnInteract(InputAction.CallbackContext context) 
     {
         // Invoca l'esdeveniment d'interactuar només quan l'acció comença
-        if (context.phase == InputActionPhase.Started && interactEvent != null && !IsGameFrozen)
+        if (context.phase == InputActionPhase.Started && interactEvent != null && !ActionsBlocked)
         {
             interactEvent.Invoke();
         }

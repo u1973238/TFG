@@ -45,9 +45,15 @@ public class SpiderSwingingSimple : MonoBehaviour
     private Rigidbody rb;
     private bool swingHeld = false;
     private bool grappleHeld = false;
+    private IWebTarget webTarget; // Si el fil ha tocat una cosa que hi reacciona (una palanca), se l'avisa quan hi arriba
 
     // Permet que l'escalada sàpiga si hi ha un fil enganxat (llavors no força l'aranya contra la paret)
     public bool IsWebAttached => joint != null;
+
+    // On està enganxat el fil ara mateix (si l'objecte es mou, el punt el segueix)
+    public Vector3 AttachPoint => joint != null && joint.connectedBody != null
+        ? joint.connectedBody.transform.TransformPoint(joint.connectedAnchor)
+        : swingPoint;
 
     void Awake()
     {
@@ -155,7 +161,8 @@ public class SpiderSwingingSimple : MonoBehaviour
         if (FindSwingPoint(cam, maxSwingDistance * PlayerUpgrades.WebRangeMultiplier, swingableLayers, aimAssistRadius, rb.position, out RaycastHit hit))
         {
             swingPoint = hit.point;
-            
+            webTarget = hit.collider.GetComponentInParent<IWebTarget>();
+
             joint = gameObject.AddComponent<SpringJoint>();
             joint.autoConfigureConnectedAnchor = false;
 
@@ -233,6 +240,7 @@ public class SpiderSwingingSimple : MonoBehaviour
 
     public void ReleaseWeb()
     {
+        webTarget = null;
         lr.positionCount = 0;
         if (joint != null)
         {
@@ -281,6 +289,12 @@ public class SpiderSwingingSimple : MonoBehaviour
             ropeArrived = true;
             AudioManager.Play("web_attach", 0.7f);
             Effects.Puff(ropeEnd, (gunTip.position - ropeEnd).normalized, new Color(1f, 1f, 1f, 0.8f), 8, 0.25f, 1.5f);
+
+            // Si el fil ha tocat una cosa que hi reacciona (una palanca), l'avisem ara que hi ha arribat
+            IWebTarget target = webTarget;
+            webTarget = null;
+            if (target is UnityEngine.Object targetObject && targetObject != null) target.OnWebArrived(this);
+            if (!joint) return; // La palanca pot haver deixat anar el fil
         }
 
         // Dibuixem el fil com una línia de molts punts amb una ona que s'esvaeix (com un fil que surt disparat)

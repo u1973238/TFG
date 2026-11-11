@@ -34,6 +34,8 @@ public class PuzzleMover : MonoBehaviour
 
     public bool IsOpen => isOpen;
     public MissionData MissionOnOpen => missionOnOpen;
+    public Transform MovedObject => target != null ? target : transform; // El que es mou (per ensenyar-lo amb la càmera)
+    public bool HasSwitch(MonoBehaviour candidate) => switches.Contains(candidate);
 
     void Start()
     {

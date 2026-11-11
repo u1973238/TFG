@@ -14674,20 +14674,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 1182587357}
     m_Modifications:
     - target: {fileID: 4620272716410945989, guid: 53954c8377cc1ad45a4e5023f41f532b, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.7775733
-      objectReference: {fileID: 0}
-    - target: {fileID: 4620272716410945989, guid: 53954c8377cc1ad45a4e5023f41f532b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 15.1
+      value: 15.099998
       objectReference: {fileID: 0}
     - target: {fileID: 4620272716410945989, guid: 53954c8377cc1ad45a4e5023f41f532b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.44
+      value: 0.5891228
       objectReference: {fileID: 0}
     - target: {fileID: 4620272716410945989, guid: 53954c8377cc1ad45a4e5023f41f532b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -14.3
+      value: -14.300026
       objectReference: {fileID: 0}
     - target: {fileID: 4620272716410945989, guid: 53954c8377cc1ad45a4e5023f41f532b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -16744,6 +16740,7 @@ MonoBehaviour:
   speedFovBoost: 10
   fovSpeedStart: 8
   fovSpeedFull: 22
+  showBlendTime: 0.6
 --- !u!114 &1723503377
 MonoBehaviour:
   m_ObjectHideFlags: 0

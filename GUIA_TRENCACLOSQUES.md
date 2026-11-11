@@ -126,14 +126,21 @@ Té física (Rigidbody), l'etiqueta Pushable i la capa Walkable: s'hi pot enganx
 
 ### Palanca (`LeverDoorSystem`)
 
-S'activa quan **l'aranya la toca** o quan **un pont de teranyina la travessa**.
+És una base de pedra amb un mànec i un pom. El pom és **vermell** quan està tancada i **verd** quan està oberta. S'acciona de tres maneres:
+- **l'aranya la toca;**
+- **un pont de teranyina la travessa o hi arriba** (al segon clic del pont, apunta a la palanca);
+- **l'aranya hi dispara el fil de balancejar-se** (Swing) apuntant al pom, també des de lluny. El fil l'estira i es deixa anar sol.
+
+En accionar-la, el mànec baixa amb un clac. La primera vegada, si la porta no es veu de prop, **la càmera l'ensenya uns 3 segons** mentre s'obre i després torna a l'aranya. Mentrestant, l'aranya no es mou.
 
 - *Stay Activated* (marcat per defecte): un cop activada, la palanca es queda baixada i la porta oberta.
-  - Desmarca'l si vols que només aguanti **mentre** l'aranya hi és al costat o un pont la travessa (recepta D).
+  - Desmarca'l si vols que només aguanti **mentre** l'aranya hi és al costat, un pont la travessa o el fil hi està enganxat (recepta D).
   - Compte: si el desmarques i la porta és lluny de la palanca, la porta es tornarà a tancar abans que l'aranya hi arribi.
-- **Per activar-la de lluny:** al segon clic del pont, apunta a la part de la palanca que es veu. El fil travessa la zona invisible de la palanca i s'enganxa al que hi ha al darrere (el terra o una paret), de manera que el pont passa pel mig de la palanca.
-- *Door Object*: deixa'l buit i connecta-la a un `PuzzleMover`.
+- *Show Door When Opened*: desmarca'l si no vols que la càmera ensenyi la porta.
+- *Door Open Duration* i *Door Close Duration*: els segons que tarda la porta a obrir-se i a tancar-se (per defecte, 2).
+- *Door Object*: la porta que mou la mateixa palanca. També el pots deixar buit i connectar la palanca a un `PuzzleMover`; llavors la càmera ensenya el que mou el `PuzzleMover`.
 - El camp *Mission ID* de la palanca no fa res; no cal tocar-lo.
+- **Si la palanca encara és un cilindre,** executa una vegada *Tools > TFG > Millorar les palanques* i desa l'escena. Canvia el prefab `Palanca` (i per tant totes les palanques) i les posa damunt del terra.
 
 ### Ponts de teranyina (`WebConnector` al Player i `WebBridge` a cada pont)
 
@@ -354,14 +361,14 @@ Una recompensa també pot ser la clau d'un trencaclosques. Per exemple, una corn
 **Solució:** amb un pont a la palanca i un altre per creuar el buit, la porta queda oberta. Si el jugador fa un tercer pont, desapareix el de la palanca i la porta es tanca: ha de pensar on posa cada pont i en quin ordre.
 
 ### E. La palanca llunyana
-**Mecàniques:** Connectar a distància.
+**Mecàniques:** Swing o Connectar a distància.
 
 **Muntatge:**
-1. Posa una **Palanca** davant d'una paret, a l'altra banda d'un buit que encara no es pugui creuar. Deixa *Door Object* buit.
+1. Posa una **Palanca** a l'altra banda d'un buit que encara no es pugui creuar. Deixa *Door Object* buit.
 2. Crea un **Ascensor** o una porta i posa la palanca a *Switches*.
-3. Posa un punt d'ancoratge a la banda del jugador: una paret o un pal.
+3. Per a la solució amb pont, posa un punt d'ancoratge a la banda del jugador: una paret o un pal.
 
-**Solució:** el primer clic, al punt de la teva banda; el segon, apuntant a la palanca. El pont la travessa i l'ascensor puja.
+**Solució:** disparar el fil de balancejar-se al pom de la palanca. O fer un pont: el primer clic, al punt de la teva banda; el segon, apuntant a la palanca. La càmera ensenya com puja l'ascensor.
 
 ### F. L'ascensor de la roca
 **Mecàniques:** Grappling, Swing, la placa i l'ascensor.
@@ -414,7 +421,7 @@ L'objectiu 7 demana que les zones es puguin visitar en qualsevol ordre. Per aix�
 | Toco un objecte i no es recull | No s'ha acceptat la missió (surt un avís), o *Target Mission ID* no coincideix amb cap missió (surt un avís a la Console) | Parla amb l'NPC; corregeix l'ID |
 | La placa no detecta la roca | La roca no té l'etiqueta Pushable o no entra a la caixa de la placa | Posa-li l'etiqueta i fes més gran el *Box Collider* de la placa |
 | L'aranya activa la placa tota sola | *Player Counts* està marcat | Desmarca'l |
-| La palanca no s'activa amb el pont | El pont no la travessa | Posa-la davant d'una paret i, al segon clic, apunta-hi |
+| La palanca no s'activa amb el pont o el fil | És la palanca antiga (un cilindre), que no té res sòlid on enganxar-se | Executa *Tools > TFG > Millorar les palanques*. Després, apunta al pom |
 | No es pot enganxar el fil o fer el pont | La superfície és Default, està massa lluny, o el pont fa menys d'1 m | Capa Walkable o Climbing; apropa els punts |
 | La mosca no s'enganxa | La ruta no passa per on es pot fer un pont | Mou els punts de la ruta entre dos ancoratges |
 | La missió no avança | No s'ha parlat amb l'NPC, la missió no és a *All Missions*, o l'ID de text no coincideix | Comprova les tres coses (l'ID distingeix majúscules) |

@@ -19,6 +19,9 @@ public class ThirdPersonCamera : MonoBehaviour
     public float fovSpeedStart = 8f; // A partir d'aquesta velocitat (m/s) el camp de visió s'obre
     public float fovSpeedFull = 22f; // A aquesta velocitat ja s'ha obert del tot
 
+    [Header("Ensenyar un lloc (palanques)")]
+    public float showBlendTime = 0.6f; // Segons que tarda la càmera a anar-hi i a tornar
+
     private Camera cameraComponent;
     private Rigidbody playerBody;
     private float baseFov;
@@ -28,6 +31,16 @@ public class ThirdPersonCamera : MonoBehaviour
     private float pitch = 0f;
     private Vector2 lookInput;
 
+    // La càmera de seguir l'aranya (es continua calculant mentre s'ensenya un lloc, per tornar-hi sense salts)
+    private Vector3 followPosition;
+    private bool showing;
+    private float showStartTime;
+    private float showDuration;
+    private Vector3 showFrom;
+    private Vector3 showTarget;
+
+    public bool IsShowingPoint => showing;
+
     void Start()
     {
         // Ens subscrivim a la lectura de moviment del ratolí
@@ -35,6 +48,7 @@ public class ThirdPersonCamera : MonoBehaviour
 
         cameraComponent = GetComponent<Camera>();
         if (cameraComponent != null) baseFov = cameraComponent.fieldOfView;
+        followPosition = transform.position;
         if (playerTransform != null)
         {
             playerBody = playerTransform.GetComponent<Rigidbody>();
@@ -50,6 +64,36 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         // Ens desubscrivim de l'event per evitar errors quan l'objecte es destrueixi
         inputReader.lookEvent -= HandleLookInput;
+
+        // Si es canvia d'escena a mig ensenyar un lloc, l'aranya no es pot quedar bloquejada
+        if (showing) inputReader.SetGameplayBlocked(false);
+    }
+
+    // La càmera deixa l'aranya uns segons per ensenyar un lloc (per exemple, la roca que acaba d'obrir una palanca)
+    // i després hi torna. Mentrestant, l'aranya no es mou ni fa accions
+    public void ShowPoint(Vector3 point, float duration, float viewDistance)
+    {
+        if (playerTransform == null) return;
+
+        // Es mira el lloc des del costat on és l'aranya i una mica des de dalt
+        Vector3 toPlayer = playerTransform.position - point;
+        toPlayer.y = 0f;
+        if (toPlayer.sqrMagnitude < 0.01f) toPlayer = -transform.forward;
+        Vector3 direction = (toPlayer.normalized + Vector3.up * 0.5f).normalized;
+
+        // Si hi ha alguna cosa pel mig, la càmera s'hi acosta
+        float distance = viewDistance;
+        if (Physics.SphereCast(point, collisionRadius, direction, out RaycastHit hit, viewDistance, collisionLayers, QueryTriggerInteraction.Ignore))
+        {
+            distance = Mathf.Max(hit.distance - 0.3f, 2f);
+        }
+
+        showTarget = point;
+        showFrom = point + direction * distance;
+        showStartTime = Time.time;
+        showDuration = Mathf.Max(duration, showBlendTime * 2f);
+        if (!showing) inputReader.SetGameplayBlocked(true);
+        showing = true;
     }
 
     private void HandleLookInput(Vector2 input)
@@ -63,8 +107,9 @@ public class ThirdPersonCamera : MonoBehaviour
         if (playerTransform == null) return;
 
         // 1. Calculem la rotació orbital segons el moviment del ratolí
-        // Mentre el joc està aturat (menú, pausa o victòria) no acumulem el moviment, així la càmera no salta en tornar
-        if (Time.timeScale > 0f)
+        // Mentre el joc està aturat (menú, pausa o victòria) no acumulem el moviment, així la càmera no salta en tornar.
+        // Tampoc mentre s'ensenya un lloc: en acabar, la càmera torna a on era
+        if (Time.timeScale > 0f && !showing)
         {
             // El ratolí ja dona un desplaçament per fotograma; el joystick dona una direcció i s'escala pel temps
             // La sensibilitat també es pot ajustar des del menú d'opcions (GameSettings)
@@ -91,10 +136,32 @@ public class ThirdPersonCamera : MonoBehaviour
         // 4. Movem i mirem cap al jugador de forma suau
         // El factor exponencial fa que el suavitzat sigui igual a 60, 144 o més FPS
         float smoothFactor = 1f - Mathf.Exp(-smoothSpeed * Time.deltaTime);
-        transform.position = Vector3.Lerp(transform.position, targetPosition, smoothFactor);
-        transform.LookAt(playerTransform.position + Vector3.up * offset.y);
+        followPosition = Vector3.Lerp(followPosition, targetPosition, smoothFactor);
+        Vector3 lookDirection = playerTransform.position + Vector3.up * offset.y - followPosition;
+        Quaternion followRotation = lookDirection.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(lookDirection) : transform.rotation;
+
+        if (showing) UpdateShow(followRotation);
+        else transform.SetPositionAndRotation(followPosition, followRotation);
 
         UpdateSpeedFov();
+    }
+
+    // Va cap al lloc que s'ensenya, s'hi queda i torna a l'aranya, amb entrades i sortides suaus
+    private void UpdateShow(Quaternion followRotation)
+    {
+        float elapsed = Time.time - showStartTime;
+        if (elapsed >= showDuration)
+        {
+            showing = false;
+            inputReader.SetGameplayBlocked(false);
+            transform.SetPositionAndRotation(followPosition, followRotation);
+            return;
+        }
+
+        // 0 = la càmera de sempre, 1 = ensenyant el lloc
+        float weight = Mathf.SmoothStep(0f, 1f, Mathf.Min(elapsed, showDuration - elapsed) / showBlendTime);
+        Quaternion showRotation = Quaternion.LookRotation(showTarget - showFrom);
+        transform.SetPositionAndRotation(Vector3.Lerp(followPosition, showFrom, weight), Quaternion.Slerp(followRotation, showRotation, weight));
     }
 
     // Quan l'aranya va molt de pressa (balancejant-se o caient), el camp de visió s'obre una mica i transmet velocitat
