@@ -80,11 +80,14 @@ public class GrassField : MonoBehaviour
     private bool generated;
 
     private readonly List<Vector3> flowerPositions = new List<Vector3>();
+    private readonly List<float> flowerHeights = new List<float>();
 
     public int TuftCount { get; private set; }
     public int BladeCount { get; private set; }
     public int FlowerCount => flowerPositions.Count;
-    public IReadOnlyList<Vector3> FlowerPositions => flowerPositions; // On són els caps de les flors (per si es vol posar-hi abelles o papallones)
+    public IReadOnlyList<Vector3> FlowerPositions => flowerPositions; // On són els caps de les flors (hi van les papallones)
+    public IReadOnlyList<float> FlowerHeights => flowerHeights; // Alçada de cada flor (per moure's amb el vent com ella)
+    public int Generation { get; private set; } // Augmenta cada vegada que es torna a generar (les papallones ho fan servir)
     public int ChunkCount => chunks.Count;
     public float LastGenerationMs { get; private set; }
 
@@ -190,6 +193,7 @@ public class GrassField : MonoBehaviour
         TuftCount = 0;
         BladeCount = 0;
         flowerPositions.Clear();
+        flowerHeights.Clear();
 
         foreach (Collider ground in FindGrounds())
         {
@@ -229,6 +233,7 @@ public class GrassField : MonoBehaviour
         foreach (KeyValuePair<Vector2Int, GrassMeshBuilder> pair in builders) CreateChunk(pair.Key, pair.Value);
         groundInfo.Clear();
         LastGenerationMs = (float)watch.Elapsed.TotalMilliseconds;
+        Generation++;
     }
 
     private void Clear()
@@ -440,6 +445,7 @@ public class GrassField : MonoBehaviour
         }
 
         flowerPositions.Add(top);
+        flowerHeights.Add(total);
     }
 
     private static Vector3 Direction(Vector3 u, Vector3 v, float angle) => u * Mathf.Cos(angle) + v * Mathf.Sin(angle);

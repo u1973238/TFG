@@ -22,7 +22,8 @@ public static class GrassBuilder
         Selection.activeGameObject = field.gameObject;
         string grounds = field.grassMaterials.Count > 0 ? string.Join(", ", field.grassMaterials.ConvertAll(m => m != null ? m.name : "?")) : "qualsevol material verd";
         EditorUtility.DisplayDialog("Herba",
-            $"S'han posat {field.TuftCount} mates d'herba ({field.BladeCount} fulles) i {field.FlowerCount} flors, damunt de: {grounds}.\n\n" +
+            $"S'han posat {field.TuftCount} mates d'herba ({field.BladeCount} fulles) i {field.FlowerCount} flors, damunt de: {grounds}. " +
+            "Les papallones hi sortiran en començar el joc.\n\n" +
             "Per canviar la quantitat, l'alçada o els colors, selecciona l'objecte «Herba» (el vent es canvia al material Herba). " +
             "Desa l'escena (Ctrl+S).", "D'acord");
     }
@@ -51,6 +52,7 @@ public static class GrassBuilder
 
         field.material = material;
         if (field.grassMaterials.Count == 0) field.grassMaterials.AddRange(FindIslandGrassMaterials(field.groundLayers));
+        if (field.GetComponent<ButterflyFlock>() == null) Undo.AddComponent<ButterflyFlock>(field.gameObject); // Papallones a les flors
         field.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
         field.transform.localScale = Vector3.one;
         field.Generate();

@@ -9772,76 +9772,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6849948811695980304, guid: a9bc02412e20a3b40a78b23a4ea4f753, type: 3}
   m_PrefabInstance: {fileID: 676475989}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1039517020
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1039517022}
-  - component: {fileID: 1039517021}
-  m_Layer: 0
-  m_Name: Herba
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1039517021
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1039517020}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec4ea899791e35c429be9b0e10e39fad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GrassField
-  groundLayers:
-    serializedVersion: 2
-    m_Bits: 72
-  onlyOnGreen: 1
-  grassMaterials:
-  - {fileID: -6478536213147159724, guid: 3beb8047c492b514ab812e69e6169744, type: 3}
-  minUpward: 0.8
-  clearRadius: 2.5
-  spacing: 1
-  coverage: 0.72
-  patchSize: 14
-  seed: 7
-  bladeHeight: {x: 0.45, y: 1.1}
-  tallChance: 0.08
-  tallMultiplier: 1.8
-  bladesPerTuft: {x: 4, y: 7}
-  bladeWidth: 0.13
-  tuftRadius: 0.25
-  tipColor: {r: 0.48, g: 0.74, b: 0.2, a: 1}
-  dryTipColor: {r: 0.74, g: 0.7, b: 0.34, a: 1}
-  dryChance: 0.12
-  fallbackGroundColor: {r: 0.3, g: 0.55, b: 0.15, a: 1}
-  fadeStart: 50
-  fadeEnd: 75
-  pushRadius: 1.6
-  material: {fileID: 2100000, guid: 55d7ef3ce0ed40a4c8272a6e24f99b59, type: 2}
---- !u!4 &1039517022
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1039517020}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1053750954
 GameObject:
   m_ObjectHideFlags: 0
@@ -14294,6 +14224,116 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1447945775}
   m_CullTransparentMesh: 1
+--- !u!1 &1458776860
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1458776863}
+  - component: {fileID: 1458776862}
+  - component: {fileID: 1458776861}
+  m_Layer: 0
+  m_Name: Herba
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1458776861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1458776860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f5852a20a9dd0141ae7c46264011aa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButterflyFlock
+  flowersPerButterfly: 15
+  maxButterflies: 40
+  seed: 3
+  wingspan: {x: 0.55, y: 0.85}
+  wingColors:
+  - {r: 1, g: 0.55, b: 0.12, a: 1}
+  - {r: 0.25, g: 0.5, b: 1, a: 1}
+  - {r: 0.95, g: 0.95, b: 0.9, a: 1}
+  - {r: 1, g: 0.45, b: 0.7, a: 1}
+  - {r: 0.6, g: 0.35, b: 0.9, a: 1}
+  bodyColor: {r: 0.12, g: 0.1, b: 0.08, a: 1}
+  flySpeed: 2.2
+  restTime: {x: 2, y: 6}
+  hopDistance: 10
+  scareDistance: 3.5
+  activeDistance: 55
+--- !u!114 &1458776862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1458776860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec4ea899791e35c429be9b0e10e39fad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GrassField
+  groundLayers:
+    serializedVersion: 2
+    m_Bits: 72
+  onlyOnGreen: 1
+  grassMaterials:
+  - {fileID: -6478536213147159724, guid: 3beb8047c492b514ab812e69e6169744, type: 3}
+  minUpward: 0.8
+  clearRadius: 2.5
+  spacing: 1
+  coverage: 0.72
+  patchSize: 14
+  seed: 7
+  bladeHeight: {x: 0.45, y: 1.1}
+  tallChance: 0.08
+  tallMultiplier: 1.8
+  bladesPerTuft: {x: 4, y: 7}
+  bladeWidth: 0.13
+  tuftRadius: 0.25
+  tipColor: {r: 0.48, g: 0.74, b: 0.2, a: 1}
+  dryTipColor: {r: 0.74, g: 0.7, b: 0.34, a: 1}
+  dryChance: 0.12
+  fallbackGroundColor: {r: 0.3, g: 0.55, b: 0.15, a: 1}
+  flowerDensity: 0.45
+  flowerPatchSize: 8
+  flowerHeight: {x: 0.9, y: 1.7}
+  flowerSize: 0.6
+  flowerColors:
+  - {r: 0.88, g: 0.88, b: 0.84, a: 1}
+  - {r: 0.95, g: 0.38, b: 0.62, a: 1}
+  - {r: 0.62, g: 0.38, b: 0.95, a: 1}
+  - {r: 0.32, g: 0.55, b: 1, a: 1}
+  flowerCenterColor: {r: 0.98, g: 0.78, b: 0.25, a: 1}
+  stemColor: {r: 0.25, g: 0.5, b: 0.12, a: 1}
+  fadeStart: 50
+  fadeEnd: 75
+  pushRadius: 1.6
+  material: {fileID: 2100000, guid: 55d7ef3ce0ed40a4c8272a6e24f99b59, type: 2}
+--- !u!4 &1458776863
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1458776860}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1459255426
 GameObject:
   m_ObjectHideFlags: 0
@@ -19246,4 +19286,4 @@ SceneRoots:
   - {fileID: 2143736308}
   - {fileID: 1924587518}
   - {fileID: 780391131}
-  - {fileID: 1039517022}
+  - {fileID: 1458776863}
