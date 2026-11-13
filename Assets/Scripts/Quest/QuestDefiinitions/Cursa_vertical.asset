@@ -15,6 +15,7 @@ MonoBehaviour:
   missionID: Cursa_vertical
   title: "Cursa contrarellotge"
   description: "El jugador ha d'arribar a dalt de tot de l'arbre abans que s'acabi el temps."
+  objective: "Arriba al cim de l'arbre a temps"
   requiredAmount: 1
   requiresHandIn: 1
   reward: 4

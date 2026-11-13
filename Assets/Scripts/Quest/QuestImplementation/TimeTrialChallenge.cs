@@ -13,6 +13,12 @@ public class TimeTrialChallenge : MonoBehaviour
 
     public string MissionID => timeTrialMissionID; // Per a la fletxa de l'objectiu (la meta)
 
+    // Per al Quest Tracker: el temps que queda i si s'ha acabat sense arribar
+    public bool IsRunning => timerActive && !challengeCompleted;
+    public bool Failed { get; private set; }
+    public float TimeLeft => currentTime;
+    public float TimeLimit => timeLimit;
+
     void Update()
     {
         if (timerActive && !challengeCompleted)
@@ -38,6 +44,7 @@ public class TimeTrialChallenge : MonoBehaviour
         currentTime = timeLimit;
         timerActive = true;
         challengeCompleted = false;
+        Failed = false;
         lastDisplayedTenths = -2;
         AudioManager.Play("race_start");
         //Debug.Log("Cursa contrarrellotge Iniciada! Puja al cim!");
@@ -67,6 +74,7 @@ public class TimeTrialChallenge : MonoBehaviour
     private void TimeTrialFailed()
     {
         //Debug.LogError("No has arribat a temps! Repte fallit.");
+        Failed = true;
         AudioManager.Play("fail");
         if (MissionManager.Instance != null)
         {

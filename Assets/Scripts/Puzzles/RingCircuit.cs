@@ -93,7 +93,7 @@ public class RingCircuit : MonoBehaviour
         if (MissionManager.Instance != null)
         {
             MissionManager.Instance.ResetProgress(mission);
-            MissionManager.Instance.ShowNotification("Has tocat terra! El circuit torna a començar.");
+            MissionManager.Instance.ShowNotification("Has tocat terra! El circuit torna a començar.", NotificationKind.Warning);
         }
         AudioManager.Play("fail");
     }

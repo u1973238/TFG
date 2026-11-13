@@ -50,7 +50,7 @@ public class PlatformLinkTrigger : MonoBehaviour
 
     private void OnRescued()
     {
-        if (MissionManager.Instance != null) MissionManager.Instance.ShowNotification("Animal rescatat!");
+        if (MissionManager.Instance != null) MissionManager.Instance.ShowNotification("Animal rescatat!", NotificationKind.Success);
         if (rescuedAnimal != null) StartCoroutine(RescueWalk());
     }
 

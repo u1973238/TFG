@@ -132,7 +132,7 @@ public class SpiderSwingingSimple : MonoBehaviour
         if (!PlayerUpgrades.GrappleUnlocked)
         {
             AudioManager.Play("fail", 0.5f);
-            if (MissionManager.Instance != null) MissionManager.Instance.ShowNotification("Encara no saps recollir el fil. Ajuda els animals per aprendre'n!");
+            if (MissionManager.Instance != null) MissionManager.Instance.ShowNotification("Encara no saps recollir el fil. Ajuda els animals per aprendre'n!", NotificationKind.Warning);
             return;
         }
 

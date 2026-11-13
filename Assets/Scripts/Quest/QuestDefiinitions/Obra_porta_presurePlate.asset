@@ -15,6 +15,7 @@ MonoBehaviour:
   missionID: PresurePlate
   title: "Obra la porta amb una roca"
   description: "El jugador ha d'arrossegar una roca fins a la placa de pressi\xF3 per obrir la porta i recollir l'objecte."
+  objective: "Arrossega una roca fins a la placa"
   requiredAmount: 1
   requiresHandIn: 1
   reward: 6

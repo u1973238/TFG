@@ -37,7 +37,7 @@ public class BridgeLimitZone : MonoBehaviour
         if (showNotice && MissionManager.Instance != null)
         {
             string bridges = maxBridges == 1 ? "1 pont de teranyina" : maxBridges + " ponts de teranyina";
-            MissionManager.Instance.ShowNotification($"Aquí només pots tenir {bridges} alhora.");
+            MissionManager.Instance.ShowNotification($"Aquí només pots tenir {bridges} alhora.", NotificationKind.Info);
         }
     }
 

@@ -15,6 +15,7 @@ MonoBehaviour:
   missionID: Cursa_aeria
   title: "Passa per tots els c\xE8rcols"
   description: "Entre les cap\xE7ades dels arbres hi ha cinc c\xE8rcols a l'aire. El jugador hi ha de passar balancejant-se amb les teranyines."
+  objective: "S\xF3n a l'aire, entre les cap\xE7ades dels arbres"
   requiredAmount: 5
   requiresHandIn: 1
   reward: 5

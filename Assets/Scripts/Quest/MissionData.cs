@@ -21,6 +21,8 @@ public class MissionData : ScriptableObject
     public string missionID; // Identificador únic (ex: "recollir_pomes")
     public string title;     // Títol que veurà el jugador (ex: "La xarxa de salvament")
     [TextArea] public string description; // Descripció llarga de la missió
+    [Tooltip("Frase curta per al jugador: surt a l'avís de missió nova i al Quest Tracker (per exemple: «Arriba al cim de l'arbre a temps»)")]
+    public string objective = "";
 
     public int requiredAmount; // Quants objectes/accions demana la missió (ex: 4)
 

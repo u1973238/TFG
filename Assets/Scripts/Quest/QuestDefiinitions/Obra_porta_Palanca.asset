@@ -15,6 +15,7 @@ MonoBehaviour:
   missionID: Palanca
   title: "Obra la porta i recull l'objecte"
   description: "El jugador ha d'activar la palanca, fixar-la amb una teranyina i recollir l'objecte de darrere la porta."
+  objective: "Acciona la palanca per obrir la porta"
   requiredAmount: 1
   requiresHandIn: 1
   reward: 1

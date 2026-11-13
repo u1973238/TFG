@@ -208,7 +208,8 @@ A `Assets/Scripts/Quest/QuestDefiinitions`, fes clic dret > *Create > Missions >
 
 - *Mission ID*: un identificador únic, sense espais (per exemple, `atrapa_mosques`). **Distingeix majúscules i minúscules.**
 - *Title*: el que veurà el jugador al Quest Tracker.
-- *Required Amount*: quants punts calen (mosques, animals, cèrcols...).
+- *Objective*: una frase curta amb el que s'ha de fer (per exemple, «Atrapa les mosques amb un pont»). Surt a l'avís de missió nova i, si la missió només demana un punt, també a la fila del Quest Tracker. Millor si no passa d'uns 35 caràcters, perquè càpiga en una línia.
+- *Required Amount*: quants punts calen (mosques, animals, cèrcols...). Si és més d'1, el Quest Tracker hi posa una barra amb un tros per punt.
 - *Requires Hand In*: si s'ha de tornar a l'NPC per acabar-la (normalment, sí).
 - *Reward* i *Reward Value*: la recompensa (taula de sota).
 - *Required Missions*: missions que s'han d'haver lliurat abans d'acceptar aquesta.

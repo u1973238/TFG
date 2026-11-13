@@ -15,6 +15,7 @@ MonoBehaviour:
   missionID: CollectItems
   title: "Recull els cubs daurats"
   description: "El jugador ha de rec\xF3rrer l'arbre i l'illa per recollir tots els cubs daurats."
+  objective: "N'hi ha quatre per l'arbre i per l'illa"
   requiredAmount: 4
   requiresHandIn: 1
   reward: 2

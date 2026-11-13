@@ -15,6 +15,7 @@ MonoBehaviour:
   missionID: conectar_plataformas
   title: "Salva l'animal atrapat"
   description: "El jugador ha de connectar les plataformes amb un pont de teranyina perqu\xE8 l'animal atrapat pugui baixar."
+  objective: "Uneix les plataformes amb un pont"
   requiredAmount: 1
   requiresHandIn: 1
   reward: 3

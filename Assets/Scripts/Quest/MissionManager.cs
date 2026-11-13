@@ -2,17 +2,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
+// Tipus d'avís: el Quest Tracker (QuestTrackerUI) els pinta de colors diferents
+public enum NotificationKind
+{
+    Info,          // Informació general
+    Warning,       // Alguna cosa no es pot fer («Encara no pots agafar-ho...»)
+    Success,       // Una cosa ha sortit bé («Animal rescatat!»)
+    NewMission,    // S'ha acceptat una missió
+    ObjectiveDone, // S'ha assolit l'objectiu: cal tornar a l'NPC
+    Delivered,     // S'ha lliurat la missió (i s'ha rebut la recompensa)
+}
+
 public class MissionManager : MonoBehaviour
 {
     public static MissionManager Instance { get; private set; }
 
     [Header("UI Component")]
-    [SerializeField] private TextMeshProUGUI questTrackerText; 
+    [SerializeField] private TextMeshProUGUI questTrackerText; // El text antic del HUD (el Quest Tracker nou, QuestTrackerUI, l'amaga)
 
     [Header("Base de Dades de Missions")]
-    public List<MissionData> allMissions; 
+    public List<MissionData> allMissions;
 
-    [System.NonSerialized] public string activeTimerText = ""; 
+    [System.NonSerialized] public string activeTimerText = "";
 
     [Header("Notificacions")]
     [SerializeField] private float notificationDuration = 3f; // Segons que es mostra «Nova missió» o «Missió completada»
@@ -21,6 +32,11 @@ public class MissionManager : MonoBehaviour
     public event System.Action<MissionData> MissionActivated;
     public event System.Action<MissionData> MissionCompleted; // Objectiu complert (pot faltar el lliurament)
     public event System.Action<MissionData> MissionDelivered; // Lliurada a l'NPC: missió acabada del tot
+    public event System.Action Changed; // Ha canviat alguna cosa que es veu al Quest Tracker (progrés, estat, temps de la cursa...)
+    public event System.Action<string, NotificationKind> NotificationShown;
+
+    public TextMeshProUGUI LegacyTrackerText => questTrackerText;
+    public float NotificationDuration => notificationDuration;
 
     private string notificationText = "";
     private float notificationEndTime;
@@ -59,9 +75,28 @@ public class MissionManager : MonoBehaviour
 
     public void ShowNotification(string text)
     {
-        notificationText = text;
+        ShowNotification(text, NotificationKind.Info);
+    }
+
+    public void ShowNotification(string text, NotificationKind kind)
+    {
+        string caption = NotificationCaption(kind);
+        notificationText = caption != "" ? $"{caption}: {text}" : text;
         notificationEndTime = Time.unscaledTime + notificationDuration;
+        NotificationShown?.Invoke(text, kind);
         UpdateQuestTrackerUI();
+    }
+
+    // El títol que acompanya l'avís (els avisos generals no en tenen)
+    public static string NotificationCaption(NotificationKind kind)
+    {
+        switch (kind)
+        {
+            case NotificationKind.NewMission: return "Nova missió";
+            case NotificationKind.ObjectiveDone: return "Objectiu complert";
+            case NotificationKind.Delivered: return "Missió lliurada";
+            default: return "";
+        }
     }
 
     // --- Cadena de missions ---
@@ -92,7 +127,7 @@ public class MissionManager : MonoBehaviour
         {
             m.isActive = true;
             //Debug.Log($"Missió activada: {m.title}");
-            ShowNotification($"Nova missió: {m.title}");
+            ShowNotification(string.IsNullOrEmpty(m.objective) ? m.title : $"{m.title}\n{m.objective}", NotificationKind.NewMission);
             AudioManager.Play("mission_start");
             MissionActivated?.Invoke(m);
             UpdateQuestTrackerUI();
@@ -129,7 +164,7 @@ public class MissionManager : MonoBehaviour
 
                 if (m.requiresHandIn)
                 {
-                    ShowNotification($"Objectiu complert: {m.title}! Torna a parlar amb qui te l'ha demanat.");
+                    ShowNotification($"{m.title}\nTorna a parlar amb qui te l'ha demanat.", NotificationKind.ObjectiveDone);
                 }
                 else
                 {
@@ -153,9 +188,9 @@ public class MissionManager : MonoBehaviour
         m.isDelivered = true;
         rewardText = PlayerUpgrades.Apply(m.reward, m.rewardValue);
 
-        string message = $"Missió lliurada: {m.title}!";
+        string message = m.title;
         if (rewardText != "") message += $"\nRecompensa: {rewardText}";
-        ShowNotification(message);
+        ShowNotification(message, NotificationKind.Delivered);
 
         MissionDelivered?.Invoke(m);
         UpdateQuestTrackerUI();
@@ -197,6 +232,7 @@ public class MissionManager : MonoBehaviour
 
     public void UpdateQuestTrackerUI()
     {
+        Changed?.Invoke();
         if (questTrackerText == null) return;
 
         string textVisual = "";

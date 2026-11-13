@@ -67,7 +67,7 @@ public class MissionCollectible : MonoBehaviour
         }
         else if (!mission.isActive && !mission.isCompleted)
         {
-            MissionManager.Instance.ShowNotification("Encara no pots agafar-ho: primer parla amb l'animal que necessita ajuda.");
+            MissionManager.Instance.ShowNotification("Encara no pots agafar-ho: primer parla amb l'animal que necessita ajuda.", NotificationKind.Warning);
         }
     }
 
